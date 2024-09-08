@@ -10,7 +10,7 @@ Käyttäjä voi myös poistaa omia arvostelujaan. Omaa elokuvaa ei voi poistaa, 
 
 Elokuvat jaetaan kategorioihin.
 
-Sovelluksessa on myös superkäyttäjiä (ei rekisteröintimahdollisuutta, lisätään tietokannan luonnin yhteydessä), jotka voivat (kaikkien tavallisen käyttäjän ominaisuuksien lisäksi) poistaa mitä tahansa elokuvia ja arvosteluja. Superkäyttäjät voivat myös vaihtaa yksittäisten elokuvien kategoriaa.
+Sovelluksessa on myös superkäyttäjiä (ei rekisteröintimahdollisuutta, lisätään tietokannan luonnin yhteydessä), jotka voivat (kaikkien tavallisen käyttäjän ominaisuuksien lisäksi) poistaa mitä tahansa elokuvia ja arvosteluja. Superkäyttäjät voivat myös vaihtaa yksittäisten elokuvien nimeä ja kategoriaa.
 
 ## Tekninen toteutus
 
