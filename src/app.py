@@ -15,7 +15,8 @@ db = SQLAlchemy(app)
 def index():
     try:
         result = db.session.execute(text("SELECT * FROM users"))
-        print(result.fetchall())
+        users = result.fetchall()
+        print(users)
 
     except Exception as e:
         print(e)

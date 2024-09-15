@@ -51,13 +51,15 @@ psql -v ON_ERROR_STOP=1 --username "postgres" --dbname "rottenpotatoes" <<-EOSQL
         updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL
     );
 
+    -- use \$\$ to escape shell expansion
+
     CREATE OR REPLACE FUNCTION update_updated_at_column()
-    RETURNS TRIGGER AS $$
+    RETURNS TRIGGER AS \$\$
     BEGIN
         NEW.updated_at = NOW();
         RETURN NEW;
     END;
-    $$ LANGUAGE plpgsql;
+    \$\$ LANGUAGE plpgsql;
 
     CREATE TRIGGER set_updated_at_users
     BEFORE UPDATE ON users
