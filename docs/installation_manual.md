@@ -6,6 +6,8 @@ Make sure you are not in any virtual environment while running the following com
 
 This software requires you to run the database as a _Docker_ container. If you are comfortable with running `psql` natively on your machine, you can do that as well. But I'm not. So, I'll be using Docker to run the PostgreSQL container.
 
+If you choose to run the database natively, you can find the database schema in the [`./db`](../db/) directory. You can create the database and tables by running the SQL scripts in the `schema.sql` file.
+
 **Docker Compose**
 
 Make sure to have _Docker Compose_ installed on your machine. If you don't have it installed, you can follow the instructions [here](https://docs.docker.com/compose/install/ "Overview of installing Docker Compose").
@@ -41,6 +43,8 @@ Create a `.env` file in the [`./src`](../src/) directory of the project and defi
 ```bash
 SQLALCHEMY_DATABASE_URI = 'postgresql://postgres:postgres@localhost:1234/rottenpotatoes'
 SQLALCHEMY_TRACK_MODIFICATIONS = False
+
+SECRET_KEY = 'secret'
 ```
 
 ## Python & Python Virtual Environment

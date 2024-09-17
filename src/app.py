@@ -1,25 +1,7 @@
 from flask import Flask
-from flask import render_template
-from flask import Flask
 from os import getenv
-from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import text
 
 app = Flask(__name__)
+app.secret_key = getenv("SECRET_KEY")
 
-app.config["SQLALCHEMY_DATABASE_URI"] = getenv("SQLALCHEMY_DATABASE_URI")
-db = SQLAlchemy(app)
-
-
-@app.route("/")
-def index():
-    try:
-        result = db.session.execute(text("SELECT * FROM users"))
-        users = result.fetchall()
-        print(users)
-
-    except Exception as e:
-        print(e)
-
-    return render_template("index.html")
-
+from routes import index

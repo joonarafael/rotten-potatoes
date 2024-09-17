@@ -9,7 +9,12 @@ EOSQL
 psql -v ON_ERROR_STOP=1 --username "postgres" --dbname "rottenpotatoes" <<-EOSQL
     CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
-    -- User tables
+    DROP TABLE IF EXISTS users CASCADE;
+    DROP TABLE IF EXISTS profile CASCADE;
+    DROP TABLE IF EXISTS games CASCADE;
+    DROP TABLE IF EXISTS reviews CASCADE;
+    DROP TABLE IF EXISTS comments CASCADE;
+    DROP TABLE IF EXISTS likes CASCADE;
 
     CREATE TABLE users (
         id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
