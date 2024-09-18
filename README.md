@@ -1,6 +1,6 @@
 # Rotten Potatoes
 
-Dokumentaatio on suomeksi vaikka koodi on englanniksi.
+Koodi on englanniksi. Dokumentaatiosta osa suomeksi, osa englanniksi. En tiedä mitä olen sekoillut.
 
 ## Sovelluksen kuvaus
 
