@@ -1,5 +1,6 @@
 from app import app
 from flask import redirect, render_template, request, session
+from sql.genres import get_all_genres
 
 
 @app.route("/movies", methods=["GET"])
@@ -9,7 +10,14 @@ def page_movies():
 
 @app.route("/movies/add", methods=["GET"])
 def page_add_movie():
-    return render_template("movies.add.html")
+    genres = get_all_genres()
+
+    if not genres["success"]:
+        print(genres["error"])
+
+        return render_template("error.html", error=genres["error"])
+    
+    return render_template("movies.add.html", genres=genres["data"])
 
 
 @app.route("/api/movie", methods=["POST"])

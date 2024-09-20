@@ -31,14 +31,11 @@
 							/>
 						</div>
 						<div>
-							<label for="password">Password</label>
-							<input
-								type="password"
-								class="form-control"
-								id="password"
-								name="password"
-								placeholder="Password"
-							/>
+							<p>
+								{% for genre in genres %}
+								<input type="radio" name="genre" value="{{ genre['id'] }}" />
+								{{ genre['name'] }} {% endfor %}
+							</p>
 						</div>
 						{% with errors = get_flashed_messages(category_filter=["error"]) %}
 						{% if errors %}
