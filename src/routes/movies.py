@@ -4,16 +4,12 @@ from flask import redirect, render_template, request, session
 
 @app.route("/movies", methods=["GET"])
 def page_movies():
-    return
-
-    # TODO: Implement movie browsing page
+    return render_template("movies.html")
 
 
 @app.route("/movies/add", methods=["GET"])
 def page_add_movie():
-    return
-
-    # TODO: Implement movie adding page
+    return render_template("movies.add.html")
 
 
 @app.route("/api/movie", methods=["POST"])
