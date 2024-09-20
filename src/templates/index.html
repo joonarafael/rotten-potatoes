@@ -14,25 +14,31 @@
 	<body>
 		<div class="container">
 			<div>
-				<h1>Rotten Patotoes</h1>
+				<h1>Rotten Potatoes</h1>
 			</div>
 			<div>
+				{% if session.username %}
+				<a href="/movies">
+					<button>Browse movies</button>
+				</a>
+				<a href="/profile">
+					<button>Profile</button>
+				</a>
+				<a href="/auth/logout">
+					<button>Log out</button>
+				</a>
+				{% else %}
 				<a href="/auth/login">
 					<button>Login</button>
 				</a>
 				<a href="/auth/register">
 					<button>Register</button>
 				</a>
-				{% if session.username %}
-				<a href="/movies">
-					<button>Browse movies</button>
-				</a>
-				{% else %}
 				<a href="/movies">
 					<button>Browse movies anonymously</button>
 				</a>
+				{% endif %}
 			</div>
-			{% endif %}
 		</div>
 		<script
 			src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
