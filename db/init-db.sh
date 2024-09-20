@@ -36,6 +36,7 @@ psql -v ON_ERROR_STOP=1 --username "postgres" --dbname "rottenpotatoes" <<-EOSQL
         description VARCHAR(1250) NOT NULL,
         year INT NOT NULL,
         genre_id UUID REFERENCES genres(id) ON DELETE CASCADE NOT NULL,
+        created_by UUID REFERENCES users(id),
         created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
         updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL
     );

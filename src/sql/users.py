@@ -49,9 +49,9 @@ def login(username, password) -> SQLOperationResult:
 
         if check_password_hash(user_dict["password"], password):
             session["csrf_token"] = urandom(16).hex()
-            session["is_admin"] = user[2]
-            session["user_id"] = user[1]
-            session["username"] = username
+            session["is_admin"] = user_dict["is_admin"]
+            session["user_id"] = user_dict["id"]
+            session["username"] = user_dict["username"]
 
             return {
                 "success": True,

@@ -24,6 +24,9 @@
 				{% endif %}
 				<p>Search for a movie</p>
 				<p>Filter by category</p>
+				{% for movie in movies %}
+				<p>{{ movie['title'] }}</p>
+				{% endfor %}
 			</div>
 		</div>
 		<script

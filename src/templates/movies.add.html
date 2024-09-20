@@ -97,6 +97,11 @@
 							></button>
 						</div>
 						{% endif %} {% endwith %}
+						<input
+							type="hidden"
+							name="csrf_token"
+							value="{{ session.csrf_token }}"
+						/>
 						<button type="submit" class="btn btn-primary">Add</button>
 					</form>
 				</div>
