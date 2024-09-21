@@ -7,3 +7,4 @@ app.secret_key = getenv("SECRET_KEY")
 from routes import movies
 from routes import users
 from routes import index
+from routes import profile
