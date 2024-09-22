@@ -26,7 +26,7 @@ Check a successful installation by running the following command:
 docker compose version
 ```
 
-**NOTE!** Some machines & setups might use `docker-compose` instead of `docker compose`. If you encounter an error, try using `docker-compose` instead.
+**NOTE!** Some machines & setups might use `docker-compose` instead of `docker compose` (depends on the method of installation (Docker Engine / Docker Desktop, etc.)). If you encounter an error, try using `docker-compose` instead.
 
 **Launching the DB Container**
 
