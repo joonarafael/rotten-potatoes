@@ -7,6 +7,12 @@ Koodi on englanniksi. Dokumentaatiosta osa suomeksi, osa englanniksi. En tiedä 
 - Käyttäjän rekisteröinti ja kirjautuminen toimii
 - Elokuvan lisääminen toimii
 
+## Asennusohjeet / Installation Manual
+
+Asennusohjeet (ENG) löytyvät [täältä](./docs/installation_manual.md "Installation Manual").
+
+Installation Manual can be found [here](./docs/installation_manual.md "Installation Manual").
+
 ## Sovelluksen kuvaus
 
 Sovellus on yksinkertainen ja suppea elokuvien arvosteluun tarkoitettu sivusto. Käyttäjä voi rekisteröityä ja kirjautua sisään, lisätä uusia elokuvia ja arvostella niitä (omia sekä muiden lisäämiä). Arvostelu koostuu tähtiarvosanasta 1-10 ja vapaamuotoisesta kommentista. Elokuvaa lisättäessä käyttäjän tulee kertoa elokuvan nimi & kategoria (esim. komedia, draama, toiminta, jne.).
