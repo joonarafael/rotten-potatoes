@@ -14,4 +14,4 @@ Sovelluksessa on myös superkäyttäjiä (ei rekisteröintimahdollisuutta, lisä
 
 ## Tekninen toteutus
 
-Sovellus rakennetaan _Python Flask_ -frameworkillä. Tietokantana käytetään _PostgreSQL_-tietokantaa kurssin ohjeita noudattaen.
+Sovellus rakennetaan _Python Flask_ -frameworkillä. Tietokantana käytetään _PostgreSQL_-tietokantaa (_Docker_-konttina).
