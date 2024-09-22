@@ -2,6 +2,11 @@
 
 Koodi on englanniksi. Dokumentaatiosta osa suomeksi, osa englanniksi. En tiedä mitä olen sekoillut.
 
+## TILANNE 22.9.
+
+- Käyttäjän rekisteröinti ja kirjautuminen toimii
+- Elokuvan lisääminen toimii
+
 ## Sovelluksen kuvaus
 
 Sovellus on yksinkertainen ja suppea elokuvien arvosteluun tarkoitettu sivusto. Käyttäjä voi rekisteröityä ja kirjautua sisään, lisätä uusia elokuvia ja arvostella niitä (omia sekä muiden lisäämiä). Arvostelu koostuu tähtiarvosanasta 1-10 ja vapaamuotoisesta kommentista. Elokuvaa lisättäessä käyttäjän tulee kertoa elokuvan nimi & kategoria (esim. komedia, draama, toiminta, jne.).
