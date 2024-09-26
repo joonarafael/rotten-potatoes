@@ -26,7 +26,7 @@ psql -v ON_ERROR_STOP=1 --username "postgres" --dbname "rottenpotatoes" <<-EOSQL
     CREATE TABLE movies (
         id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
         title VARCHAR(255) NOT NULL UNIQUE,
-        description VARCHAR(1250) NOT NULL,
+        description VARCHAR(1024) NOT NULL,
         year INT NOT NULL,
         genre_id UUID REFERENCES genres(id) ON DELETE CASCADE NOT NULL,
         created_by UUID REFERENCES users(id),
@@ -37,15 +37,15 @@ psql -v ON_ERROR_STOP=1 --username "postgres" --dbname "rottenpotatoes" <<-EOSQL
     CREATE TABLE likes (
         id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
         user_id UUID REFERENCES users(id) ON DELETE CASCADE NOT NULL,
-        movie_id UUID REFERENCES movies(id) ON DELETE CASCADE NOT NULL,
-        rating INT NOT NULL
+        movie_id UUID REFERENCES movies(id) ON DELETE CASCADE NOT NULL
     );
 
     CREATE TABLE reviews (
         id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
         user_id UUID REFERENCES users(id) ON DELETE CASCADE NOT NULL,
         movie_id UUID REFERENCES movies(id) ON DELETE CASCADE NOT NULL,
-        review VARCHAR(1250) NOT NULL,
+        rating INT NOT NULL,
+        comment VARCHAR(1250) NOT NULL,
         created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
         updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL
     );

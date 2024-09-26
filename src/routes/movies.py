@@ -1,7 +1,8 @@
 from app import app
 from flask import redirect, render_template, request, session, flash
+from utils.flash import clear_session_flashes
 from sql.genres import get_all_genres
-from sql.movies import add_movie, get_all_movies
+from sql.movies import add_movie, get_all_movies, get_movie_by_id, rate_movie
 from datetime import datetime
 
 
@@ -28,8 +29,25 @@ def page_add_movie():
     return render_template("movies.add.html", genres=genres["data"])
 
 
+@app.route("/movies/rate/<id>", methods=["GET"])
+def page_rate_movie(id: str):
+    if "username" not in session:
+        flash("No user logged in.", 'error')
+        return redirect("/auth/login")
+
+    movie = get_movie_by_id(id)
+
+    if not movie["success"]:
+        print(movie["error"])
+
+        return render_template("error.html", error=movie["error"])
+    
+    return render_template("movies.rate.html", movie=movie["data"])
+
+
 @app.route("/api/movies", methods=["POST"])
 def api_post_movie():
+    clear_session_flashes()
     # auth
     if "username" not in session:
         flash("No user logged in.", 'error')
@@ -98,8 +116,72 @@ def api_post_movie():
         return redirect("/movies/add")
 
 
-@app.route("/api/movies/<int:id>", methods=["GET", "PUT", "DELETE"])
+@app.route("/api/movies/rate/<id>", methods=["POST"])
+def api_rate_movie(id: str):
+    clear_session_flashes()
+    # auth
+    if "username" not in session:
+        flash("No user logged in.", 'error')
+        return redirect("/auth/login")
+    
+    if session["csrf_token"] != request.form["csrf_token"]:
+        flash("CSRF token mismatch. You may have to login again.", 'error')
+        return redirect("/movies/add")
+    
+    movie = get_movie_by_id(id)
+
+    if not movie["success"]:
+        print(movie["error"])
+
+        return render_template("error.html", error=movie["error"])
+
+    # actual logic
+    try:
+        rating = request.form["rating"]
+        comment = request.form["comment"]
+
+        # sanity checks
+        if not rating or not comment:
+            flash("Rating and comment are required.", 'error')
+            return redirect("/movies/rate/{}".format(id))
+        
+        if not isinstance(rating, str) or not isinstance(comment, str):
+            flash("Rating and comment must be of type string.", 'error')
+            return redirect("/movies/rate/{}".format(id))
+
+        rating_as_int = int(rating)
+
+        if rating_as_int < 1 or rating_as_int > 10:
+            flash("Rating must be equal to or greater than 1 and equal to or less than 10.", 'error')
+            return redirect("/movies/rate/{}".format(id))
+        
+        if len(comment) < 4 or len(comment) > 1024:
+            flash("Title must be between 4 and 1024 characters.", 'error')
+            return redirect("/movies/rate/{}".format(id))
+        
+        db_result = rate_movie(id, rating_as_int, comment, session["user_id"])
+
+        if not db_result["success"]:
+            if "has already" in db_result["error"]:
+                flash("Movie rating failed. You have already given a rating!", 'error')
+
+            else:
+                flash("Movie rating failed. Please try again.", 'error')
+            
+            return redirect("/movies/rate/{}".format(id))
+
+        flash("Movie rating successful!", 'success')
+        return redirect("/movies")
+
+    except Exception as e:
+        print(e)
+        flash("Movie rating failed. {}".format(e), 'error')
+        return redirect("/movies/rate/{}".format(id))
+
+
+@app.route("/api/movies/<id>", methods=["GET", "PUT", "DELETE"])
 def api_get_put_delete_movie(id):
+    clear_session_flashes()
     return
 
     # TODO: Implement getting, updating and deleting movies

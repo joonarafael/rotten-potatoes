@@ -25,7 +25,15 @@
 				<p>Search for a movie</p>
 				<p>Filter by category</p>
 				{% for movie in movies %}
-				<p>{{ movie['title'] }}</p>
+				<div>
+					<p><strong>{{ movie['title'] }}</strong></p>
+					<p>{{ movie['description'] }}</p>
+					<p>{{ movie['year'] }}</p>
+					<p>Reviews: {{ movie['review_count'] }}</p>
+					<a href="/movies/rate/{{ movie['id'] }}">
+						<button>Rate this movie</button>
+					</a>
+				</div>
 				{% endfor %}
 				<a href="/">
 					<button>Home page</button>
@@ -33,6 +41,11 @@
 				<a href="/profile">
 					<button>Profile page</button>
 				</a>
+				{% if session.username %}
+				<a href="/auth/logout">
+					<button>Log out</button>
+				</a>
+				{% endif %}
 			</div>
 		</div>
 		<script

@@ -1,5 +1,6 @@
 from app import app
-from flask import redirect, render_template, request
+from flask import redirect, render_template, request, session
+from utils.flash import clear_session_flashes
 
 
 @app.route("/", methods=["GET"])
