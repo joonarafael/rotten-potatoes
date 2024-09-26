@@ -1,28 +1,26 @@
 # Rotten Potatoes
 
-Koodi on englanniksi. Dokumentaatiosta osa suomeksi, osa englanniksi. En tiedä mitä olen sekoillut.
+Movie rating website built as a university assignment for course "Tietokannat ja web-ohjelmointi".
 
-## TILANNE 22.9.
+## Technical Overview
 
-- Käyttäjän rekisteröinti ja kirjautuminen toimii
-- Elokuvan lisääminen toimii
+Application is built with _Python Flask_ framework. Database is _PostgreSQL_ (run as a _Docker_ container).
 
-## Asennusohjeet / Installation Manual
+## Situation 22.9.
 
-Asennusohjeet (ENG) löytyvät [täältä](./docs/installation_manual.md "Installation Manual").
+- Basic auth (register + login) works
+- Adding movies works
+
+## Installation Manual
 
 Installation Manual can be found [here](./docs/installation_manual.md "Installation Manual").
 
-## Sovelluksen kuvaus
+## Project Description
 
-Sovellus on yksinkertainen ja suppea elokuvien arvosteluun tarkoitettu sivusto. Käyttäjä voi rekisteröityä ja kirjautua sisään, lisätä uusia elokuvia ja arvostella niitä (omia sekä muiden lisäämiä). Arvostelu koostuu tähtiarvosanasta 1-10 ja vapaamuotoisesta kommentista. Elokuvaa lisättäessä käyttäjän tulee kertoa elokuvan nimi & kategoria (esim. komedia, draama, toiminta, jne.).
+The application is a simple and limited movie rating website. User can register and login, add new movies and rate them (their own and others). Rating consists of a star rating from 1-10 and a free-form comment. When adding a movie, user must provide the movie title & category (e.g. comedy, drama, action, etc.).
 
-Käyttäjä voi myös poistaa omia arvostelujaan. Omaa elokuvaa ei voi poistaa, **mikäli joku muu on arvostellut sitä**. Käyttäjä voi myös tarkastella muiden käyttäjien arvosteluja ja elokuvia. Elokuvia voi hakea otsikon perusteella ja ne voi järjestää saatujen arvostelujen mukaan.
+User can also delete their own ratings. User cannot delete their own movie, **if someone else has rated it**. User can also view other users' ratings and movies. Movies can be searched by title and sorted by the ratings they have received.
 
-Elokuvat jaetaan kategorioihin.
+Movies are divided into categories.
 
-Sovelluksessa on myös superkäyttäjiä (ei rekisteröintimahdollisuutta, lisätään tietokannan luonnin yhteydessä), jotka voivat (kaikkien tavallisen käyttäjän ominaisuuksien lisäksi) poistaa mitä tahansa elokuvia ja arvosteluja. Superkäyttäjät voivat myös vaihtaa yksittäisten elokuvien nimeä ja kategoriaa.
-
-## Tekninen toteutus
-
-Sovellus rakennetaan _Python Flask_ -frameworkillä. Tietokantana käytetään _PostgreSQL_-tietokantaa (_Docker_-konttina).
+The application also has superusers (no registration possibility, added during database creation), who can (in addition to all the features of a regular user) delete any movies and ratings. Superusers can also change the name and category of individual movies.
