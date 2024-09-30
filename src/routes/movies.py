@@ -15,7 +15,48 @@ def page_movies():
 
         return render_template("movies.html", movies=[])
     
+    user_id = session["user_id"] if "user_id" in session else None
+
+    for movie in movies["data"]:
+        rated = False
+
+        if user_id:
+            for review in movie["reviews"]:
+                if review["user_id"] == user_id:
+                    rated = True
+                    break
+
+        movie["rated"] = rated
+    
     return render_template("movies.html", movies=movies["data"])
+
+@app.route("/movies/<id>", methods=["GET"])
+def page_movie(id: str):
+    clear_session_flashes()
+
+    if not id or not isinstance(id, str):
+        flash("Given ID was invalid.", 'error')
+        return redirect("/movies")
+
+    movie = get_movie_by_id(id)
+
+    if not movie["success"]:
+        print(movie["error"])
+
+        return render_template("error.html", error=movie["error"])
+
+    user_id = session["user_id"] if "user_id" in session else None
+    rated = False
+
+    if user_id:
+        for review in movie["data"]["reviews"]:
+            if review["user_id"] == user_id:
+                rated = True
+                break
+
+    movie["data"]["rated"] = rated    
+
+    return render_template("movie.html", movie=movie["data"])
 
 @app.route("/movies/add", methods=["GET"])
 def page_add_movie():
@@ -119,6 +160,11 @@ def api_post_movie():
 @app.route("/api/movies/rate/<id>", methods=["POST"])
 def api_rate_movie(id: str):
     clear_session_flashes()
+
+    if not id or not isinstance(id, str):
+        flash("Given ID was invalid.", 'error')
+        return redirect("/movies")
+
     # auth
     if "username" not in session:
         flash("No user logged in.", 'error')
@@ -178,10 +224,3 @@ def api_rate_movie(id: str):
         flash("Movie rating failed. {}".format(e), 'error')
         return redirect("/movies/rate/{}".format(id))
 
-
-@app.route("/api/movies/<id>", methods=["GET", "PUT", "DELETE"])
-def api_get_put_delete_movie(id):
-    clear_session_flashes()
-    return
-
-    # TODO: Implement getting, updating and deleting movies

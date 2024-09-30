@@ -6,6 +6,33 @@ from sqlalchemy import text
 from flask import session
 
 
+def get_user_by_id(id: str) -> SQLOperationResult:
+    sql = text("SELECT id, created_at, updated_at, username, is_admin FROM users WHERE id=:id")
+    result = db.session.execute(sql, {"id": id})
+    user = result.fetchone()
+
+    if user is not None:
+        user_dict = {
+            "id": id,
+            "created_at": user[1].isoformat(),
+            "updated_at": user[2].isoformat(),
+            "username": user[3],
+            "is_admin": user[4]
+        }
+
+        return {
+            "success": True,
+            "error": None,
+            "data": user_dict
+        }
+
+    return {
+        "success": False,
+        "error": "No user with id '{}'.".format(id),
+        "data": None
+    }
+
+
 def register(username: str, password: str) -> SQLOperationResult:
     try:
         hashed_password = generate_password_hash(password)
@@ -52,6 +79,8 @@ def login(username, password) -> SQLOperationResult:
             session["is_admin"] = user_dict["is_admin"]
             session["user_id"] = user_dict["id"]
             session["username"] = user_dict["username"]
+
+            del user_dict["password"]
 
             return {
                 "success": True,

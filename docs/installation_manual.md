@@ -10,11 +10,7 @@ Instructions are written for a Linux environment, but the process should be simi
 
 Make sure you are not in any virtual environment while running the following commands. If you are, deactivate the virtual environment.
 
-This software requires you to run the database as a _Docker_ container. If you are comfortable with running `psql` natively on your machine, you can do that as well.
-
-If you really choose to run the database natively, you can find the database schema in the [`./db`](../db/ "../db") directory. You can create the database and tables by running `psql<schema.sql`, I believe. What comes to the users, authorization etc. assoociated with `psql`, you may need to find more information on your own.
-
-**I suggest you to use Docker, as it is easier to manage and you can easily remove the database container and start from scratch if you mess up.**
+This software requires you to run the database as a _Docker_ container. The database won't work natively through the `psql` command.
 
 ### Docker Compose
 

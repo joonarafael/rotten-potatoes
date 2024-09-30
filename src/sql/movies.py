@@ -31,8 +31,10 @@ def get_all_movies() -> SQLOperationResult:
                 ratings = get_movie_ratings_by_id(movie_dict["id"])
 
                 if ratings["success"]:
+                    movie_dict["reviews"] = ratings["data"]
                     movie_dict["review_count"] = len(ratings["data"])
                 else:
+                    movie_dict["reviews"] = []
                     movie_dict["review_count"] = 0
 
                 movies_as_dicts.append(movie_dict)
@@ -78,6 +80,15 @@ def get_movie_by_id(id: str) -> SQLOperationResult:
                 "created_at": movie[6].isoformat(),
                 "updated_at": movie[7].isoformat()
             }
+
+            ratings = get_movie_ratings_by_id(movie_dict["id"])
+
+            if ratings["success"]:
+                movie_dict["reviews"] = ratings["data"]
+                movie_dict["review_count"] = len(ratings["data"])
+            else:
+                movie_dict["reviews"] = []
+                movie_dict["review_count"] = 0
 
             return {
                 "success": True,

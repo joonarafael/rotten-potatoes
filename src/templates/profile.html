@@ -19,7 +19,10 @@
 			</div>
 			<div>
 				<p>Here are your profile details, {{ session.username }}:</p>
-				<p>TODO</p>
+				<p>username: {{ session.username }}</p>
+				<p>created at: {{ user_details['created_at'] }}</p>
+				<p>updated at: {{ user_details['updated_at'] }}</p>
+				<p>admin: {{ user_details['is_admin'] }}</p>
 				<a href="/movies">
 					<button>Movie list</button>
 				</a>
