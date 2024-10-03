@@ -6,10 +6,18 @@ Movie rating website built as a university assignment for course "Tietokannat ja
 
 Application is built with _Python Flask_ framework. Database is _PostgreSQL_ (run as a _Docker_ container).
 
-## Situation 22.9.
+## Situation 3.10:
 
-- Basic auth (register + login) works
-- Adding movies works
+- [x] User can register and login
+- [x] User can add new movies
+- [x] User can delete their own movie if no one (apart from themselves) has rated it
+- [x] User can rate movies
+- [x] User can delete their own ratings
+- [x] Superuser can delete any movie
+- [x] Superuser can delete any rating
+- [ ] Movies can be searched
+- [ ] Movies can be filtered by category
+- [ ] Movie details can be modified by superuser
 
 ## Installation Manual
 
@@ -24,3 +32,13 @@ User can also delete their own ratings. User cannot delete their own movie, **if
 Movies are divided into categories.
 
 The application also has superusers (no registration possibility, added during database creation), who can (in addition to all the features of a regular user) delete any movies and ratings. Superusers can also change the name and category of individual movies.
+
+## Admin Users
+
+Pre-populated superusers:
+
+```
+alice:redqueen
+bob:squarepants
+patrick:asteroid
+```

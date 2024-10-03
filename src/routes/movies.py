@@ -1,8 +1,9 @@
 from app import app
 from flask import redirect, render_template, request, session, flash
+from sql.users import get_user_by_id
 from utils.flash import clear_session_flashes
 from sql.genres import get_all_genres
-from sql.movies import add_movie, get_all_movies, get_movie_by_id, rate_movie
+from sql.movies import add_movie, get_all_movies, get_movie_by_id, rate_movie, delete_movie_by_id, get_rating_by_id, delete_rating_by_id
 from datetime import datetime
 
 
@@ -30,10 +31,9 @@ def page_movies():
     
     return render_template("movies.html", movies=movies["data"])
 
+
 @app.route("/movies/<id>", methods=["GET"])
 def page_movie(id: str):
-    clear_session_flashes()
-
     if not id or not isinstance(id, str):
         flash("Given ID was invalid.", 'error')
         return redirect("/movies")
@@ -44,6 +44,13 @@ def page_movie(id: str):
         print(movie["error"])
 
         return render_template("error.html", error=movie["error"])
+    
+    created_by = get_user_by_id(movie["data"]["created_by"])
+
+    if not created_by["success"]:
+        movie["data"]["created_by_user"] = "N/A"
+    else:
+        movie["data"]["created_by_user"] = created_by["data"]["username"]
 
     user_id = session["user_id"] if "user_id" in session else None
     rated = False
@@ -57,6 +64,7 @@ def page_movie(id: str):
     movie["data"]["rated"] = rated    
 
     return render_template("movie.html", movie=movie["data"])
+
 
 @app.route("/movies/add", methods=["GET"])
 def page_add_movie():
@@ -157,6 +165,55 @@ def api_post_movie():
         return redirect("/movies/add")
 
 
+@app.route("/api/movies/<id>", methods=["POST"])
+def api_delete_movie(id: str):
+    clear_session_flashes()
+    # auth
+    if "user_id" not in session:
+        flash("No user logged in.", 'error')
+        return redirect("/auth/login")
+    
+    if session["csrf_token"] != request.form["csrf_token"]:
+        flash("CSRF token mismatch. You may have to login again.", 'error')
+        return redirect("/movies/{}".format(id))
+
+    user = get_user_by_id(session["user_id"])
+    movie = get_movie_by_id(id)
+
+    if not user["success"]:
+        print(user["error"])
+
+        return render_template("error.html", error=user["error"])
+    
+    if not movie["success"]:
+        print(movie["error"])
+
+        return render_template("error.html", error=movie["error"])
+    
+    # check for admin / owner
+    if not user["data"]["is_admin"]:
+        if session["user_id"] != movie["data"]["created_by"]:
+            flash("You are not allowed to delete this movie.", 'error')
+            return redirect("/movies/{}".format(id))
+
+    # actual logic
+    try:
+        db_result = delete_movie_by_id(id, user["data"]["is_admin"])
+
+        if not db_result["success"]:
+            flash(db_result["error"], 'error')
+            
+            return redirect("/movies/{}".format(id))
+
+        flash("Movie deletion successful!", 'success')
+        return redirect("/movies")
+
+    except Exception as e:
+        print(e)
+        flash("Movie deletion failed. {}".format(e), 'error')
+        return redirect("/movies/{}".format(id))
+
+
 @app.route("/api/movies/rate/<id>", methods=["POST"])
 def api_rate_movie(id: str):
     clear_session_flashes()
@@ -224,3 +281,51 @@ def api_rate_movie(id: str):
         flash("Movie rating failed. {}".format(e), 'error')
         return redirect("/movies/rate/{}".format(id))
 
+@app.route("/api/movies/rate/delete/<id>", methods=["POST"])
+def api_delete_rating(id: str):
+    clear_session_flashes()
+    # auth
+    if "user_id" not in session:
+        flash("No user logged in.", 'error')
+        return redirect("/auth/login")
+    
+    if session["csrf_token"] != request.form["csrf_token"]:
+        flash("CSRF token mismatch. You may have to login again.", 'error')
+        return redirect("/movies/{}".format(id))
+
+    user = get_user_by_id(session["user_id"])
+    rating = get_rating_by_id(id)
+
+    if not user["success"]:
+        print(user["error"])
+
+        return render_template("error.html", error=user["error"])
+    
+    if not rating["success"]:
+        print(rating["error"])
+
+        return render_template("error.html", error=rating["error"])
+    
+    # check for ownership
+    # admin can delete any rating
+    if not user["data"]["is_admin"]:
+        if session["user_id"] != rating["data"]["user_id"]:
+            flash("You are not allowed to delete this rating!", 'error')
+            return redirect("/movies/{}".format(id))
+
+    # actual logic
+    try:
+        db_result = delete_rating_by_id(id, user["data"]["is_admin"])
+
+        if not db_result["success"]:
+            flash(db_result["error"], 'error')
+            
+            return redirect("/movies/{}".format(id))
+
+        flash("Rating deletion successful!", 'success')
+        return redirect("/movies")
+
+    except Exception as e:
+        print(e)
+        flash("Rating deletion failed. {}".format(e), 'error')
+        return redirect("/movies/{}".format(id))

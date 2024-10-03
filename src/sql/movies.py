@@ -33,9 +33,15 @@ def get_all_movies() -> SQLOperationResult:
                 if ratings["success"]:
                     movie_dict["reviews"] = ratings["data"]
                     movie_dict["review_count"] = len(ratings["data"])
+
+                    if movie_dict["review_count"] > 0:
+                        movie_dict["review_average"] = sum([review["rating"] for review in ratings["data"]]) / len(ratings["data"])
+                    else:
+                        movie_dict["review_average"] = None
                 else:
                     movie_dict["reviews"] = []
                     movie_dict["review_count"] = 0
+                    movie_dict["review_average"] = None
 
                 movies_as_dicts.append(movie_dict)
 
@@ -86,9 +92,15 @@ def get_movie_by_id(id: str) -> SQLOperationResult:
             if ratings["success"]:
                 movie_dict["reviews"] = ratings["data"]
                 movie_dict["review_count"] = len(ratings["data"])
+                
+                if movie_dict["review_count"] > 0:
+                    movie_dict["review_average"] = sum([review["rating"] for review in ratings["data"]]) / len(ratings["data"])
+                else:
+                    movie_dict["review_average"] = None
             else:
                 movie_dict["reviews"] = []
                 movie_dict["review_count"] = 0
+                movie_dict["review_average"] = None
 
             return {
                 "success": True,
@@ -104,6 +116,86 @@ def get_movie_by_id(id: str) -> SQLOperationResult:
 
     except Exception as e:
         print("DB Function 'get_movie_by_id()' failed.")
+        print(e)
+
+        return {
+            "success": False,
+            "error": str(e),
+            "data": None
+        }
+
+
+def delete_movie_by_id(id: str, as_admin: bool) -> SQLOperationResult:
+    try:
+        movie = get_movie_by_id(id)
+
+        if movie["success"]:
+            ratings = get_movie_ratings_by_id(movie["data"]["id"])
+
+            # check if people have rated the movie
+            if ratings["success"]:
+                ratings_count = len(ratings["data"])
+
+                # movie has reviews, enter deletion logic
+                if ratings_count > 1:
+                    if as_admin:
+                        sql = text(
+                            "DELETE FROM movies WHERE id = :id")
+                        db.session.execute(sql, {"id": id})
+                        db.session.commit()
+
+                    else:
+                        return {
+                            "success": False,
+                            "error": "Movie has reviews from other people. Only an admin can delete this.",
+                            "data": None
+                        }
+
+                # if the only review is by the user itself, delete the movie
+                elif ratings_count == 1:
+                    if ratings["data"][0]["user_id"] == session["user_id"] or as_admin:
+                        sql = text(
+                            "DELETE FROM movies WHERE id = :id")
+                        db.session.execute(sql, {"id": id})
+                        db.session.commit()
+                    else:
+                        return {
+                            "success": False,
+                            "error": "Movie has reviews from other people. Only an admin can delete this.",
+                            "data": None
+                        }
+
+                # no reviews, delete the movie straight away
+                sql = text(
+                    "DELETE FROM movies WHERE id = :id")
+                db.session.execute(sql, {"id": id})
+                db.session.commit()
+
+                return {
+                    "success": True,
+                    "error": None,
+                    "data": None
+                }
+            
+            sql = text(
+                "DELETE FROM movies WHERE id = :id")
+            db.session.execute(sql, {"id": id})
+            db.session.commit()
+
+            return {
+                "success": True,
+                "error": None,
+                "data": None
+            }
+
+        return {
+            "success": False,
+            "error": "Movie fetching with given ID was unsuccessful.",
+            "data": None
+        }
+
+    except Exception as e:
+        print("DB Function 'delete_movie_by_id()' failed.")
         print(e)
 
         return {
@@ -225,4 +317,83 @@ def get_movie_ratings_by_id(id: str) -> SQLOperationResult:
             "error": str(e),
             "data": None
         }
+
+
+def get_rating_by_id(id: str) -> SQLOperationResult:
+    try:
+        sql = text(
+            "SELECT * FROM reviews WHERE id = :id")
+        result = db.session.execute(sql, {"id": id})
+        rating = result.fetchone()
+
+        if rating is not None:
+            rating_dict = {
+                "id": str(rating[0]),
+                "user_id": str(rating[1]),
+                "movie_id": str(rating[2]),
+                "rating": rating[3],
+                "comment": rating[4],
+                "created_at": rating[5].isoformat(),
+                "updated_at": rating[6].isoformat()
+            }
+
+            return {
+                "success": True,
+                "error": None,
+                "data": rating_dict
+            }
+
+        return {
+            "success": True,
+            "error": "No rating found.",
+            "data": []
+        }
+
+    except Exception as e:
+        print("DB Function 'get_rating_by_id()' failed.")
+        print(e)
+
+        return {
+            "success": False,
+            "error": str(e),
+            "data": None
+        }
     
+def delete_rating_by_id(id: str, as_admin: bool) -> SQLOperationResult:
+    try:
+        rating = get_rating_by_id(id)
+
+        if rating["success"]:
+            if rating["data"]["user_id"] == session["user_id"] or as_admin:
+                sql = text(
+                    "DELETE FROM reviews WHERE id = :id")
+                db.session.execute(sql, {"id": id})
+                db.session.commit()
+
+                return {
+                    "success": True,
+                    "error": None,
+                    "data": None
+                }
+
+            return {
+                "success": False,
+                "error": "You are not allowed to delete this review!",
+                "data": None
+            }
+
+        return {
+            "success": False,
+            "error": "Rating fetching with given ID was unsuccessful.",
+            "data": None
+        }
+
+    except Exception as e:
+        print("DB Function 'delete_rating_by_id()' failed.")
+        print(e)
+
+        return {
+            "success": False,
+            "error": str(e),
+            "data": None
+        }

@@ -3,6 +3,7 @@ from flask import redirect, render_template, request, flash, session
 from sql.users import register, login, logout
 from utils.flash import clear_session_flashes
 
+
 @app.route("/auth/login", methods=["GET"])
 def page_login():
     return render_template("auth.login.html")

@@ -15,9 +15,63 @@
 		<div class="container">
 			<div>
 				<h1>{{ movie['title'] }}</h1>
+				<p>
+					Added by <strong>{{ movie['created_by_user'] }}</strong> at {{
+					movie['created_at'] }}
+				</p>
 			</div>
 			<div>
+				{% with errors = get_flashed_messages(category_filter=["error"]) %} {%
+				if errors %}
+				<div
+					class="alert alert-danger alert-dismissible fade show"
+					role="alert"
+				>
+					<ul>
+						{%- for msg in errors %}
+						<li>{{ msg }}</li>
+						{% endfor -%}
+					</ul>
+
+					<button
+						type="button"
+						class="btn-close"
+						data-bs-dismiss="alert"
+						aria-label="Close"
+					></button>
+				</div>
+				{% endif %} {% endwith %} {% with messages =
+				get_flashed_messages(category_filter=["success"]) %} {% if messages %}
+				<div
+					class="alert alert-success alert-dismissible fade show"
+					role="alert"
+				>
+					<ul>
+						{%- for msg in messages %}
+						<li>{{ msg }}</li>
+						{% endfor -%}
+					</ul>
+
+					<button
+						type="button"
+						class="btn-close"
+						data-bs-dismiss="alert"
+						aria-label="Close"
+					></button>
+				</div>
+				{% endif %} {% endwith %}
 				<div>
+					{% if session['is_admin'] or movie['created_by'] == session['user_id']
+					%}
+					<form action="/api/movies/{{ movie['id'] }}" method="POST">
+						<input
+							type="hidden"
+							name="csrf_token"
+							value="{{ session.csrf_token }}"
+						/>
+						<button type="submit" class="btn btn-primary">Delete movie</button>
+					</form>
+					{% endif %}
 					<p><strong>{{ movie['title'] }}</strong></p>
 					<p>{{ movie['description'] }}</p>
 					<p>{{ movie['year'] }}</p>
@@ -29,6 +83,22 @@
 							session.user_id %}(your review){% endif %}
 						</p>
 						<p>{{ rating['comment'] }}</p>
+						{% if rating['user_id'] == session['user_id'] or session['is_admin']
+						%}
+						<form
+							action="/api/movies/rate/delete/{{ rating['id'] }}"
+							method="POST"
+						>
+							<input
+								type="hidden"
+								name="csrf_token"
+								value="{{ session.csrf_token }}"
+							/>
+							<button type="submit" class="btn btn-primary">
+								Delete review
+							</button>
+						</form>
+						{% endif %}
 					</div>
 					{% endfor %} {% if movie['rated'] %}
 					<p>You've already given a review for this movie!</p>
