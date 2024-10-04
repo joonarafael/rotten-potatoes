@@ -6,7 +6,7 @@ Movie rating website built as a university assignment for course "Tietokannat ja
 
 Application is built with _Python Flask_ framework. Database is _PostgreSQL_ (run as a _Docker_ container).
 
-## Situation 3.10:
+## Situation 4.10:
 
 - [x] User can register and login
 - [x] User can add new movies
@@ -15,9 +15,15 @@ Application is built with _Python Flask_ framework. Database is _PostgreSQL_ (ru
 - [x] User can delete their own ratings
 - [x] Superuser can delete any movie
 - [x] Superuser can delete any rating
-- [ ] Movies can be searched
-- [ ] Movies can be filtered by category
-- [ ] Movie details can be modified by superuser
+- [x] Movies can be searched
+- [x] Movies can be filtered by category
+- [x] Movie details can be modified by superuser
+
+# STILL TODO FOR THE FINAL SUBMISSION
+
+- [ ] UI improvements (visuals with Bootstrap)
+- [ ] Display genre information for movies
+- [ ] Display reviewer name for ratings
 
 ## Installation Manual
 

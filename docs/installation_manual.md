@@ -60,8 +60,6 @@ SQLALCHEMY_TRACK_MODIFICATIONS = False
 SECRET_KEY = 'secret'
 ```
 
-**NOTE!** If you chose to run the database natively, you need to change the `SQLALCHEMY_DATABASE_URI` to match your database configuration.
-
 ## Python & Python Virtual Environment
 
 ### Version
