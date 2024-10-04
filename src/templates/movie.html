@@ -71,6 +71,10 @@
 						/>
 						<button type="submit" class="btn btn-primary">Delete movie</button>
 					</form>
+					{% endif %} {% if session['is_admin'] %}
+					<a href="/movies/edit/{{ movie['id'] }}">
+						<button class="btn btn-primary">Edit movie details</button>
+					</a>
 					{% endif %}
 					<p><strong>{{ movie['title'] }}</strong></p>
 					<p>{{ movie['description'] }}</p>

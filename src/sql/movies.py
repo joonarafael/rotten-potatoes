@@ -272,6 +272,33 @@ def rate_movie(id: str, rating: int, comment: str, user_id: str) -> SQLOperation
         }
     
 
+def edit_movie_by_id(id: str, title: str, genre: str, description: str, year: int) -> SQLOperationResult:
+    try:
+        # incoming data has been already validated in the route!
+        # it's safe to insert it into the database
+        sql = text(
+            "UPDATE movies SET title = :title, genre_id = :genre_id, description = :description, year = :year WHERE id = :id")
+        db.session.execute(
+            sql, {"title": title, "genre_id": genre, "description": description, "year": year, "id": id})
+        db.session.commit()
+
+        return {
+            "success": True,
+            "error": None,
+            "data": None
+        }
+
+    except Exception as e:
+        print("DB Function 'edit_movie_by_id()' failed.")
+        print(e)
+
+        return {
+            "success": False,
+            "error": str(e),
+            "data": None
+        }
+
+
 def get_movie_ratings_by_id(id: str) -> SQLOperationResult:
     try:
         # check if user has already reviewed the movie

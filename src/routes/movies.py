@@ -2,8 +2,9 @@ from app import app
 from flask import redirect, render_template, request, session, flash
 from sql.users import get_user_by_id
 from utils.flash import clear_session_flashes
+from utils.validate_movie_details import validate_movie_details
 from sql.genres import get_all_genres
-from sql.movies import add_movie, get_all_movies, get_movie_by_id, rate_movie, delete_movie_by_id, get_rating_by_id, delete_rating_by_id
+from sql.movies import add_movie, get_all_movies, get_movie_by_id, rate_movie, delete_movie_by_id, get_rating_by_id, delete_rating_by_id, edit_movie_by_id
 from datetime import datetime
 
 
@@ -93,6 +94,41 @@ def page_rate_movie(id: str):
     
     return render_template("movies.rate.html", movie=movie["data"])
 
+@app.route("/movies/edit/<id>", methods=["GET"])
+def page_edit_movie(id: str):
+    if "user_id" not in session:
+        flash("No user logged in.", 'error')
+        return redirect("/auth/login")
+    
+    user = get_user_by_id(session["user_id"])
+
+    if not user["success"]:
+        print(user["error"])
+
+        return render_template("error.html", error=user["error"])
+    
+    if user["data"]["is_admin"] == False:
+        flash("You are not allowed to edit movies.", 'error')
+        return redirect("/movies/{}".format(id))
+
+    movie = get_movie_by_id(id)
+
+    if not movie["success"]:
+        print(movie["error"])
+
+        return render_template("error.html", error=movie["error"])
+    
+    genres = get_all_genres()
+
+    if not genres["success"]:
+        print(genres["error"])
+
+        return render_template("error.html", error=genres["error"])
+    
+    print(movie["data"])
+    
+    return render_template("movies.edit.html", movie=movie["data"], genres=genres["data"])
+
 
 @app.route("/api/movies", methods=["POST"])
 def api_post_movie():
@@ -113,51 +149,24 @@ def api_post_movie():
         description = request.form["description"]
         year = request.form["year"]
 
-        genres = get_all_genres()
+        validated = validate_movie_details(title, genre, description, year)
 
-        if not genres["success"]:
-            print(genres["error"])
+        if validated:
+            db_result = add_movie(title, genre, description, int(year), session["user_id"])
 
-            return render_template("error.html", error=genres["error"])
-        
-        genre_ids = [genre["id"] for genre in genres["data"]]
+            if not db_result["success"]:
+                if "UniqueViolation" in db_result["error"]:
+                    flash("Movie adding failed. Movie named '{}' already exists.".format(title), 'error')
 
-        # sanity checks
-        if not title or not genre or not description or not year:
-            flash("Title, genre, description and year are required.", 'error')
-            return redirect("/movies/add")
-        
-        if not isinstance(title, str) or not isinstance(genre, str) or not isinstance(description, str) or not isinstance(year, str):
-            flash("Title, genre, description and year must be of type string.", 'error')
-            return redirect("/movies/add")
-        
-        if len(title) < 4 or len(title) > 64:
-            flash("Title must be between 4 and 64 characters.", 'error')
-            return redirect("/movies/add")
-        
-        if genre not in genre_ids:
-            flash("Unknown genre.", 'error')
-            return redirect("/movies/add")
-        
-        year_as_int = int(year)
-        
-        if year_as_int < 1900 or year_as_int > datetime.now().year:
-            flash("Year must be between greater than 1900 and equal to or less than {}.".format(datetime.now().year), 'error')
-            return redirect("/movies/add")
-        
-        db_result = add_movie(title, genre, description, year_as_int, session["user_id"])
+                else:
+                    flash("Movie adding failed. Please try again.", 'error')
+                
+                return redirect("/movies/add")
 
-        if not db_result["success"]:
-            if "UniqueViolation" in db_result["error"]:
-                flash("Movie adding failed. Movie named '{}' already exists.".format(title), 'error')
-
-            else:
-                flash("Movie adding failed. Please try again.", 'error')
-            
-            return redirect("/movies/add")
-
-        flash("Movie adding successful!", 'success')
-        return redirect("/movies")
+            flash("Movie adding successful!", 'success')
+            return redirect("/movies")
+        
+        return redirect("/movies/add")
 
     except Exception as e:
         print(e)
@@ -212,6 +221,68 @@ def api_delete_movie(id: str):
         print(e)
         flash("Movie deletion failed. {}".format(e), 'error')
         return redirect("/movies/{}".format(id))
+
+
+@app.route("/api/movies/edit/<id>", methods=["PUT", "POST"])
+def api_edit_movie(id: str):
+    clear_session_flashes()
+    # auth
+    if "user_id" not in session:
+        flash("No user logged in.", 'error')
+        return redirect("/auth/login")
+    
+    if session["csrf_token"] != request.form["csrf_token"]:
+        flash("CSRF token mismatch. You may have to login again.", 'error')
+        return redirect("/movies/{}".format(id))
+
+    user = get_user_by_id(session["user_id"])
+    movie = get_movie_by_id(id)
+
+    if not user["success"]:
+        print(user["error"])
+
+        return render_template("error.html", error=user["error"])
+    
+    if not movie["success"]:
+        print(movie["error"])
+
+        return render_template("error.html", error=movie["error"])
+    
+    # check for admin
+    if not user["data"]["is_admin"]:
+        flash("You are not allowed to edit movie details.", 'error')
+        return redirect("/movies/{}".format(id))
+
+    # actual logic
+    try:
+        title = request.form["title"]
+        genre = request.form["genre"]
+        description = request.form["description"]
+        year = request.form["year"]
+
+        validated = validate_movie_details(title, genre, description, year)
+
+        if validated:
+            db_result = edit_movie_by_id(id, title, genre, description, int(year))
+
+            if not db_result["success"]:
+                if "UniqueViolation" in db_result["error"]:
+                    flash("Movie editing failed. Movie named '{}' already exists.".format(title), 'error')
+
+                else:
+                    flash("Movie editing failed. Please try again.", 'error')
+                
+                return redirect("/movies/edit/{}".format(id))
+
+            flash("Movie editing successful!", 'success')
+            return redirect("/movies")
+        
+        return redirect("/movies/edit/{}".format(id))
+    
+    except Exception as e:
+        print(e)
+        flash("Movie editing failed. {}".format(e), 'error')
+        return redirect("/movies/edit/{}".format(id))
 
 
 @app.route("/api/movies/rate/<id>", methods=["POST"])

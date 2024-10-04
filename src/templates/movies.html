@@ -36,13 +36,6 @@
 					<a href="/movies/{{ movie['id'] }}">
 						<button>See details and read reviews</button>
 					</a>
-					{% if movie['rated'] %}
-					<p>You've already given a review for this movie!</p>
-					{% elif session.username %}
-					<a href="/movies/rate/{{ movie['id'] }}">
-						<button>Rate this movie</button>
-					</a>
-					{% endif %}
 				</div>
 				{% endfor %}
 				<a href="/">
