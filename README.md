@@ -1,29 +1,10 @@
 # Rotten Potatoes
 
-Movie rating website built as a university assignment for course "Tietokannat ja web-ohjelmointi".
+Movie rating website built as a university assignment for course "Tietokannat ja web-ohjelmointi". All features are implemented as required by the initial software requirements specification (below).
 
 ## Technical Overview
 
 Application is built with _Python Flask_ framework. Database is _PostgreSQL_ (run as a _Docker_ container).
-
-## Situation 4.10:
-
-- [x] User can register and login
-- [x] User can add new movies
-- [x] User can delete their own movie if no one (apart from themselves) has rated it
-- [x] User can rate movies
-- [x] User can delete their own ratings
-- [x] Superuser can delete any movie
-- [x] Superuser can delete any rating
-- [x] Movies can be searched
-- [x] Movies can be filtered by category
-- [x] Movie details can be modified by superuser
-
-# STILL TODO FOR THE FINAL SUBMISSION
-
-- [ ] UI improvements (visuals with Bootstrap)
-- [ ] Display genre information for movies
-- [ ] Display reviewer name for ratings
 
 ## Installation Manual
 
