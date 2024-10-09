@@ -1,5 +1,5 @@
 from sql.genres import get_all_genres
-from flask import render_template, flash, redirect
+from flask import flash
 from datetime import datetime
 
 def validate_movie_details(title: str, genre: str, description: str, year: str) -> bool:

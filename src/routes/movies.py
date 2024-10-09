@@ -1,7 +1,6 @@
 from app import app
 from flask import redirect, render_template, request, session, flash
 from sql.users import get_user_by_id
-from utils.flash import clear_session_flashes
 from utils.validate_movie_details import validate_movie_details
 from sql.genres import get_all_genres
 from sql.movies import add_movie, get_all_movies, get_movie_by_id, rate_movie, delete_movie_by_id, get_rating_by_id, delete_rating_by_id, edit_movie_by_id
@@ -10,27 +9,7 @@ from datetime import datetime
 
 @app.route("/movies", methods=["GET"])
 def page_movies():
-    movies = get_all_movies()
-
-    if not movies["success"]:
-        print(movies["error"])
-
-        return render_template("movies.html", movies=[])
-    
-    user_id = session["user_id"] if "user_id" in session else None
-
-    for movie in movies["data"]:
-        rated = False
-
-        if user_id:
-            for review in movie["reviews"]:
-                if review["user_id"] == user_id:
-                    rated = True
-                    break
-
-        movie["rated"] = rated
-    
-    return render_template("movies.html", movies=movies["data"])
+    return redirect("/")
 
 
 @app.route("/movies/<id>", methods=["GET"])
@@ -132,7 +111,6 @@ def page_edit_movie(id: str):
 
 @app.route("/api/movies", methods=["POST"])
 def api_post_movie():
-    clear_session_flashes()
     # auth
     if "username" not in session:
         flash("No user logged in.", 'error')
@@ -176,7 +154,6 @@ def api_post_movie():
 
 @app.route("/api/movies/<id>", methods=["POST"])
 def api_delete_movie(id: str):
-    clear_session_flashes()
     # auth
     if "user_id" not in session:
         flash("No user logged in.", 'error')
@@ -225,7 +202,6 @@ def api_delete_movie(id: str):
 
 @app.route("/api/movies/edit/<id>", methods=["PUT", "POST"])
 def api_edit_movie(id: str):
-    clear_session_flashes()
     # auth
     if "user_id" not in session:
         flash("No user logged in.", 'error')
@@ -275,7 +251,7 @@ def api_edit_movie(id: str):
                 return redirect("/movies/edit/{}".format(id))
 
             flash("Movie editing successful!", 'success')
-            return redirect("/movies")
+            return redirect("/movies/{}".format(id))
         
         return redirect("/movies/edit/{}".format(id))
     
@@ -287,8 +263,6 @@ def api_edit_movie(id: str):
 
 @app.route("/api/movies/rate/<id>", methods=["POST"])
 def api_rate_movie(id: str):
-    clear_session_flashes()
-
     if not id or not isinstance(id, str):
         flash("Given ID was invalid.", 'error')
         return redirect("/movies")
@@ -330,7 +304,7 @@ def api_rate_movie(id: str):
             return redirect("/movies/rate/{}".format(id))
         
         if len(comment) < 4 or len(comment) > 1024:
-            flash("Title must be between 4 and 1024 characters.", 'error')
+            flash("Comment must be between 4 and 1024 characters.", 'error')
             return redirect("/movies/rate/{}".format(id))
         
         db_result = rate_movie(id, rating_as_int, comment, session["user_id"])
@@ -345,7 +319,7 @@ def api_rate_movie(id: str):
             return redirect("/movies/rate/{}".format(id))
 
         flash("Movie rating successful!", 'success')
-        return redirect("/movies")
+        return redirect("/movies/{}".format(id))
 
     except Exception as e:
         print(e)
@@ -354,7 +328,6 @@ def api_rate_movie(id: str):
 
 @app.route("/api/movies/rate/delete/<id>", methods=["POST"])
 def api_delete_rating(id: str):
-    clear_session_flashes()
     # auth
     if "user_id" not in session:
         flash("No user logged in.", 'error')
@@ -394,7 +367,7 @@ def api_delete_rating(id: str):
             return redirect("/movies/{}".format(id))
 
         flash("Rating deletion successful!", 'success')
-        return redirect("/movies")
+        return redirect("/movies".format(id))
 
     except Exception as e:
         print(e)

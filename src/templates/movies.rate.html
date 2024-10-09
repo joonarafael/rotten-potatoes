@@ -1,149 +1,58 @@
-<!DOCTYPE html>
-<html>
-	<head>
-		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1" />
-		<title>Rate Movie | Rotten Potatoes</title>
-		<link
-			href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-			rel="stylesheet"
-			integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
-			crossorigin="anonymous"
-		/>
-	</head>
-	<body>
-		<div class="container">
-			{% if session.username %}
-			<div>
-				<h1>Rate {{ movie['title'] }} ({{ movie['year'] }})</h1>
+{% extends "layout.html" %} {% block title %}Login{% endblock %} {% block head
+%} {{ super() }} {% endblock %} {% block content %} {% if session.username %}
+<div>
+	<h1>Rate {{ movie['title'] }}, ({{ movie['year'] }})</h1>
+</div>
+<div>
+	<div>
+		<form action="/api/movies/rate/{{ movie['id'] }}" method="POST">
+			<div class="mb-3">
+				<label for="rating" class="form-label">Stars</label>
+				<p>
+					<input type="radio" name="rating" value="1" />1
+					<input type="radio" name="rating" value="2" />2
+					<input type="radio" name="rating" value="3" />3
+					<input type="radio" name="rating" value="4" />4
+					<input type="radio" name="rating" value="5" />5
+					<input type="radio" name="rating" value="6" />6
+					<input type="radio" name="rating" value="7" />7
+					<input type="radio" name="rating" value="8" />8
+					<input type="radio" name="rating" value="9" />9
+					<input type="radio" name="rating" value="10" />10
+				</p>
 			</div>
-			<div>
-				<div>
-					<form action="/api/movies/rate/{{ movie['id'] }}" method="POST">
-						<div>
-							<p>
-								1
-								<input type="radio" name="rating" value="1" />
-							</p>
-							<p>
-								2
-								<input type="radio" name="rating" value="2" />
-							</p>
-							<p>
-								3
-								<input type="radio" name="rating" value="3" />
-							</p>
-							<p>
-								4
-								<input type="radio" name="rating" value="4" />
-							</p>
-							<p>
-								5
-								<input type="radio" name="rating" value="5" />
-							</p>
-							<p>
-								6
-								<input type="radio" name="rating" value="6" />
-							</p>
-							<p>
-								7
-								<input type="radio" name="rating" value="7" />
-							</p>
-							<p>
-								8
-								<input type="radio" name="rating" value="8" />
-							</p>
-							<p>
-								9
-								<input type="radio" name="rating" value="9" />
-							</p>
-							<p>
-								10
-								<input type="radio" name="rating" value="10" />
-							</p>
-						</div>
-						<div>
-							<label for="comment">Comment</label>
-							<textarea
-								type="text"
-								class="form-control"
-								id="comment"
-								name="comment"
-								placeholder="Enter comment"
-								required
-							></textarea>
-						</div>
-						{% with errors = get_flashed_messages(category_filter=["error"]) %}
-						{% if errors %}
-						<div
-							class="alert alert-danger alert-dismissible fade show"
-							role="alert"
-						>
-							<ul>
-								{%- for msg in errors %}
-								<li>{{ msg }}</li>
-								{% endfor -%}
-							</ul>
-
-							<button
-								type="button"
-								class="btn-close"
-								data-bs-dismiss="alert"
-								aria-label="Close"
-							></button>
-						</div>
-						{% endif %} {% endwith %} {% with messages =
-						get_flashed_messages(category_filter=["success"]) %} {% if messages
-						%}
-						<div
-							class="alert alert-success alert-dismissible fade show"
-							role="alert"
-						>
-							<ul>
-								{%- for msg in messages %}
-								<li>{{ msg }}</li>
-								{% endfor -%}
-							</ul>
-
-							<button
-								type="button"
-								class="btn-close"
-								data-bs-dismiss="alert"
-								aria-label="Close"
-							></button>
-						</div>
-						{% endif %} {% endwith %}
-						<input
-							type="hidden"
-							name="csrf_token"
-							value="{{ session.csrf_token }}"
-						/>
-						<button type="submit" class="btn btn-primary">Send rating</button>
-					</form>
-				</div>
-				<a href="/movies">
-					<button>Back to movie list</button>
-				</a>
+			<div class="mb-3">
+				<label for="comment">Comment</label>
+				<textarea
+					type="text"
+					class="form-control"
+					id="comment"
+					name="comment"
+					placeholder="Enter comment"
+					required
+				></textarea>
 			</div>
-			{% else %}
-			<div>
-				<h1>Unauthorized</h1>
-			</div>
-			<div>
-				<p>No user logged in!</p>
-				<a href="/auth/login">
-					<button>Log in here.</button>
-				</a>
-				<a href="/auth/register">
-					<button>Register here.</button>
-				</a>
-			</div>
-			{% endif %}
-		</div>
-		<script
-			src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-			integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
-			crossorigin="anonymous"
-		></script>
-	</body>
-</html>
+			<input type="hidden" name="csrf_token" value="{{ session.csrf_token }}" />
+			<button type="submit" class="btn btn-primary mb-3">Send rating</button>
+		</form>
+	</div>
+	<a href="/movies/{{ movie['id'] }}">
+		<button class="btn btn-secondary">Back</button>
+	</a>
+</div>
+{% else %}
+<div>
+	<h1>Unauthorized!</h1>
+</div>
+<div>
+	<p>No user logged in.</p>
+	<div style="display: flex; flex-direction: row; gap: 0.5rem">
+		<a href="/auth/login">
+			<button class="btn btn-primary">Log in here.</button>
+		</a>
+		<a href="/auth/register">
+			<button class="btn btn-secondary">Register here.</button>
+		</a>
+	</div>
+</div>
+{% endif %} {% endblock %}

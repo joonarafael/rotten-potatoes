@@ -1,6 +1,5 @@
 from app import app
 from flask import redirect, render_template, request, session, flash
-from utils.flash import clear_session_flashes
 from sql.users import get_user_by_id
 
 

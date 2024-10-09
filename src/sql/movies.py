@@ -8,8 +8,12 @@ from flask import session
 
 def get_all_movies() -> SQLOperationResult:
     try:
-        sql = text(
-            "SELECT * FROM movies ORDER BY title ASC")
+        sql = text("""
+            SELECT movies.*, genres.name AS genre_name
+            FROM movies
+            JOIN genres ON movies.genre_id = genres.id
+            ORDER BY movies.title ASC
+        """)
         result = db.session.execute(sql)
         movies = result.fetchall()
 
@@ -25,7 +29,8 @@ def get_all_movies() -> SQLOperationResult:
                     "genre_id": str(movie[4]),
                     "created_by": str(movie[5]),
                     "created_at": movie[6].isoformat(),
-                    "updated_at": movie[7].isoformat()
+                    "updated_at": movie[7].isoformat(),
+                    "genre": movie[8]
                 }
 
                 ratings = get_movie_ratings_by_id(movie_dict["id"])
@@ -70,8 +75,12 @@ def get_all_movies() -> SQLOperationResult:
 
 def get_movie_by_id(id: str) -> SQLOperationResult:
     try:
-        sql = text(
-            "SELECT * FROM movies WHERE id = :id")
+        sql = text("""
+            SELECT movies.*, genres.name 
+            FROM movies 
+            JOIN genres ON movies.genre_id = genres.id 
+            WHERE movies.id = :id
+        """)
         result = db.session.execute(sql, {"id": id})
         movie = result.fetchone()
 
@@ -84,7 +93,8 @@ def get_movie_by_id(id: str) -> SQLOperationResult:
                 "genre_id": str(movie[4]),
                 "created_by": str(movie[5]),
                 "created_at": movie[6].isoformat(),
-                "updated_at": movie[7].isoformat()
+                "updated_at": movie[7].isoformat(),
+                "genre": movie[8]
             }
 
             ratings = get_movie_ratings_by_id(movie_dict["id"])
@@ -301,9 +311,12 @@ def edit_movie_by_id(id: str, title: str, genre: str, description: str, year: in
 
 def get_movie_ratings_by_id(id: str) -> SQLOperationResult:
     try:
-        # check if user has already reviewed the movie
-        sql = text(
-            "SELECT * FROM reviews WHERE movie_id = :movie_id")
+        sql = text("""
+            SELECT reviews.*, users.username AS username
+            FROM reviews
+            JOIN users ON reviews.user_id = users.id
+            WHERE reviews.movie_id = :movie_id
+        """)
         result = db.session.execute(sql, {"movie_id": id})
         ratings = result.fetchall()
 
@@ -318,7 +331,8 @@ def get_movie_ratings_by_id(id: str) -> SQLOperationResult:
                     "rating": rating[3],
                     "comment": rating[4],
                     "created_at": rating[5].isoformat(),
-                    "updated_at": rating[6].isoformat()
+                    "updated_at": rating[6].isoformat(),
+                    "username": rating[7]
                 }
 
                 ratings_as_dicts.append(rating_dict)

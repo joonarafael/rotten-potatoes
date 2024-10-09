@@ -14,6 +14,10 @@ def page_search():
 
     return render_template("search.html", genres=genres["data"])
 
+@app.route("/search/results/", methods=["GET"])
+def page_search_no_results():
+    return render_template("search.no.results.html")
+
 
 @app.route("/search/results/<results>", methods=["GET"])
 def page_search_results(results: str):

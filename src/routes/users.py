@@ -1,7 +1,6 @@
 from app import app
 from flask import redirect, render_template, request, flash, session
 from sql.users import register, login, logout
-from utils.flash import clear_session_flashes
 
 
 @app.route("/auth/login", methods=["GET"])
@@ -22,7 +21,6 @@ def api_logout():
 
 @app.route("/api/auth/login", methods=["POST"])
 def api_login():
-    clear_session_flashes()
     try:
         username = request.form["username"]
         password = request.form["password"]
@@ -61,7 +59,6 @@ def api_login():
 
 @app.route("/api/auth/register", methods=["POST"])
 def api_register():
-    clear_session_flashes()
     try:
         username = request.form["username"]
         password = request.form["password"]

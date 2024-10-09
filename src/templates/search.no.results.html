@@ -1,0 +1,12 @@
+{% extends "layout.html" %} {% block title %}Search Results{% endblock %} {%
+block head %} {{ super() }} {% endblock %} {% block content %}
+<div>
+	<h1>No Results</h1>
+</div>
+<div>
+	<p>No results matched your search criteria!</p>
+	<a href="/search">
+		<button class="btn btn-primary">Change search</button>
+	</a>
+</div>
+{% endblock %}
