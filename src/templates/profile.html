@@ -6,10 +6,26 @@ head %} {{ super() }} {% endblock %} {% block content %} {% if session.username
 </div>
 <div>
 	<p>Here are your profile details, {{ session.username }}:</p>
-	<p>username: {{ session.username }}</p>
-	<p>created at: {{ user_details['created_at'] }}</p>
-	<p>updated at: {{ user_details['updated_at'] }}</p>
-	<p>admin: {{ user_details['is_admin'] }}</p>
+	<table class="table">
+		<tbody>
+			<tr>
+				<th scope="row">username:</th>
+				<td>{{ session.username }}</td>
+			</tr>
+			<tr>
+				<th scope="row">created at:</th>
+				<td>{{ user_details['created_at'] }}</td>
+			</tr>
+			<tr>
+				<th scope="row">updated at:</th>
+				<td>{{ user_details['updated_at'] }}</td>
+			</tr>
+			<tr>
+				<th scope="row">admin:</th>
+				<td>{{ user_details['is_admin'] }}</td>
+			</tr>
+		</tbody>
+	</table>
 </div>
 {% else %}
 <div>
