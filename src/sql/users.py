@@ -7,7 +7,8 @@ from flask import session
 
 
 def get_user_by_id(id: str) -> SQLOperationResult:
-    sql = text("SELECT id, created_at, updated_at, username, is_admin FROM users WHERE id=:id")
+    sql = text(
+        "SELECT id, created_at, updated_at, username, is_admin FROM users WHERE id=:id")
     result = db.session.execute(sql, {"id": id})
     user = result.fetchone()
 
@@ -58,9 +59,11 @@ def register(username: str, password: str) -> SQLOperationResult:
             "error": str(e),
             "data": None
         }
-    
+
+
 def login(username, password) -> SQLOperationResult:
-    sql = text("SELECT id, created_at, updated_at, password, is_admin FROM users WHERE username=:username")
+    sql = text(
+        "SELECT id, created_at, updated_at, password, is_admin FROM users WHERE username=:username")
     result = db.session.execute(sql, {"username": username})
     user = result.fetchone()
 
@@ -93,6 +96,7 @@ def login(username, password) -> SQLOperationResult:
         "error": "No user named '{}'.".format(username),
         "data": None
     }
+
 
 def logout() -> None:
     def remove_key_from_session(key: str):

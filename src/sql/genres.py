@@ -1,9 +1,6 @@
 from structs import SQLOperationResult
 from db import db
-from os import urandom
-from werkzeug.security import check_password_hash, generate_password_hash
 from sqlalchemy import text
-from flask import session
 
 
 def get_all_genres() -> SQLOperationResult:

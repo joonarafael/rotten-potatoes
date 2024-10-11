@@ -11,7 +11,7 @@ def page_index():
         print(movies["error"])
 
         return render_template("movies.html", movies=[])
-    
+
     user_id = session["user_id"] if "user_id" in session else None
 
     for movie in movies["data"]:
@@ -24,5 +24,5 @@ def page_index():
                     break
 
         movie["rated"] = rated
-    
+
     return render_template("movies.html", movies=movies["data"])

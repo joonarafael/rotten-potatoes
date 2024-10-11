@@ -3,8 +3,7 @@ from flask import redirect, render_template, request, session, flash
 from sql.users import get_user_by_id
 from utils.validate_movie_details import validate_movie_details
 from sql.genres import get_all_genres
-from sql.movies import add_movie, get_all_movies, get_movie_by_id, rate_movie, delete_movie_by_id, get_rating_by_id, delete_rating_by_id, edit_movie_by_id
-from datetime import datetime
+from sql.movies import add_movie, get_movie_by_id, rate_movie, delete_movie_by_id, get_rating_by_id, delete_rating_by_id, edit_movie_by_id
 
 
 @app.route("/movies", methods=["GET"])
@@ -24,7 +23,7 @@ def page_movie(id: str):
         print(movie["error"])
 
         return render_template("error.html", error=movie["error"])
-    
+
     created_by = get_user_by_id(movie["data"]["created_by"])
 
     if not created_by["success"]:
@@ -41,7 +40,7 @@ def page_movie(id: str):
                 rated = True
                 break
 
-    movie["data"]["rated"] = rated    
+    movie["data"]["rated"] = rated
 
     return render_template("movie.html", movie=movie["data"])
 
@@ -54,7 +53,7 @@ def page_add_movie():
         print(genres["error"])
 
         return render_template("error.html", error=genres["error"])
-    
+
     return render_template("movies.add.html", genres=genres["data"])
 
 
@@ -70,23 +69,24 @@ def page_rate_movie(id: str):
         print(movie["error"])
 
         return render_template("error.html", error=movie["error"])
-    
+
     return render_template("movies.rate.html", movie=movie["data"])
+
 
 @app.route("/movies/edit/<id>", methods=["GET"])
 def page_edit_movie(id: str):
     if "user_id" not in session:
         flash("No user logged in.", 'error')
         return redirect("/auth/login")
-    
+
     user = get_user_by_id(session["user_id"])
 
     if not user["success"]:
         print(user["error"])
 
         return render_template("error.html", error=user["error"])
-    
-    if user["data"]["is_admin"] == False:
+
+    if not user["data"]["is_admin"]:
         flash("You are not allowed to edit movies.", 'error')
         return redirect("/movies/{}".format(id))
 
@@ -96,17 +96,20 @@ def page_edit_movie(id: str):
         print(movie["error"])
 
         return render_template("error.html", error=movie["error"])
-    
+
     genres = get_all_genres()
 
     if not genres["success"]:
         print(genres["error"])
 
         return render_template("error.html", error=genres["error"])
-    
+
     print(movie["data"])
-    
-    return render_template("movies.edit.html", movie=movie["data"], genres=genres["data"])
+
+    return render_template(
+        "movies.edit.html",
+        movie=movie["data"],
+        genres=genres["data"])
 
 
 @app.route("/api/movies", methods=["POST"])
@@ -115,10 +118,15 @@ def api_post_movie():
     if "username" not in session:
         flash("No user logged in.", 'error')
         return redirect("/auth/login")
-    
-    if session["csrf_token"] != request.form["csrf_token"]:
-        flash("CSRF token mismatch. You may have to login again.", 'error')
-        return redirect("/movies/add")
+
+    try:
+        if session["csrf_token"] != request.form["csrf_token"]:
+            flash("CSRF token mismatch. You may have to login again.", 'error')
+            return redirect("/movies/add")
+    except Exception as e:
+        print(e)
+        flash("Unauthorized. Log in again.", 'error')
+        return redirect("/auth/login")
 
     # actual logic
     try:
@@ -126,24 +134,38 @@ def api_post_movie():
         genre = request.form["genre"]
         description = request.form["description"]
         year = request.form["year"]
+    except Exception as e:
+        print(e)
+        flash(
+            "Movie adding failed. Title, genre, description or year was missing.",
+            'error')
+        return redirect("/movies/add")
 
+    try:
         validated = validate_movie_details(title, genre, description, year)
 
         if validated:
-            db_result = add_movie(title, genre, description, int(year), session["user_id"])
+            db_result = add_movie(
+                title,
+                genre,
+                description,
+                int(year),
+                session["user_id"])
 
             if not db_result["success"]:
                 if "UniqueViolation" in db_result["error"]:
-                    flash("Movie adding failed. Movie named '{}' already exists.".format(title), 'error')
+                    flash(
+                        "Movie adding failed. Movie named '{}' already exists.".format(title),
+                        'error')
 
                 else:
                     flash("Movie adding failed. Please try again.", 'error')
-                
+
                 return redirect("/movies/add")
 
             flash("Movie adding successful!", 'success')
             return redirect("/movies")
-        
+
         return redirect("/movies/add")
 
     except Exception as e:
@@ -158,10 +180,15 @@ def api_delete_movie(id: str):
     if "user_id" not in session:
         flash("No user logged in.", 'error')
         return redirect("/auth/login")
-    
-    if session["csrf_token"] != request.form["csrf_token"]:
-        flash("CSRF token mismatch. You may have to login again.", 'error')
-        return redirect("/movies/{}".format(id))
+
+    try:
+        if session["csrf_token"] != request.form["csrf_token"]:
+            flash("CSRF token mismatch. You may have to login again.", 'error')
+            return redirect("/movies/add")
+    except Exception as e:
+        print(e)
+        flash("Unauthorized. Log in again.", 'error')
+        return redirect("/auth/login")
 
     user = get_user_by_id(session["user_id"])
     movie = get_movie_by_id(id)
@@ -170,12 +197,12 @@ def api_delete_movie(id: str):
         print(user["error"])
 
         return render_template("error.html", error=user["error"])
-    
+
     if not movie["success"]:
         print(movie["error"])
 
         return render_template("error.html", error=movie["error"])
-    
+
     # check for admin / owner
     if not user["data"]["is_admin"]:
         if session["user_id"] != movie["data"]["created_by"]:
@@ -188,7 +215,7 @@ def api_delete_movie(id: str):
 
         if not db_result["success"]:
             flash(db_result["error"], 'error')
-            
+
             return redirect("/movies/{}".format(id))
 
         flash("Movie deletion successful!", 'success')
@@ -206,10 +233,15 @@ def api_edit_movie(id: str):
     if "user_id" not in session:
         flash("No user logged in.", 'error')
         return redirect("/auth/login")
-    
-    if session["csrf_token"] != request.form["csrf_token"]:
-        flash("CSRF token mismatch. You may have to login again.", 'error')
-        return redirect("/movies/{}".format(id))
+
+    try:
+        if session["csrf_token"] != request.form["csrf_token"]:
+            flash("CSRF token mismatch. You may have to login again.", 'error')
+            return redirect("/movies/add")
+    except Exception as e:
+        print(e)
+        flash("Unauthorized. Log in again.", 'error')
+        return redirect("/auth/login")
 
     user = get_user_by_id(session["user_id"])
     movie = get_movie_by_id(id)
@@ -218,12 +250,12 @@ def api_edit_movie(id: str):
         print(user["error"])
 
         return render_template("error.html", error=user["error"])
-    
+
     if not movie["success"]:
         print(movie["error"])
 
         return render_template("error.html", error=movie["error"])
-    
+
     # check for admin
     if not user["data"]["is_admin"]:
         flash("You are not allowed to edit movie details.", 'error')
@@ -235,26 +267,36 @@ def api_edit_movie(id: str):
         genre = request.form["genre"]
         description = request.form["description"]
         year = request.form["year"]
+    except Exception as e:
+        print(e)
+        flash(
+            "Movie editing failed. Title, genre, description or error was missing.",
+            'error')
+        return redirect("/movies/edit/{}".format(id))
 
+    try:
         validated = validate_movie_details(title, genre, description, year)
 
         if validated:
-            db_result = edit_movie_by_id(id, title, genre, description, int(year))
+            db_result = edit_movie_by_id(
+                id, title, genre, description, int(year))
 
             if not db_result["success"]:
                 if "UniqueViolation" in db_result["error"]:
-                    flash("Movie editing failed. Movie named '{}' already exists.".format(title), 'error')
+                    flash(
+                        "Movie editing failed. Movie named '{}' already exists.".format(title),
+                        'error')
 
                 else:
                     flash("Movie editing failed. Please try again.", 'error')
-                
+
                 return redirect("/movies/edit/{}".format(id))
 
             flash("Movie editing successful!", 'success')
             return redirect("/movies/{}".format(id))
-        
+
         return redirect("/movies/edit/{}".format(id))
-    
+
     except Exception as e:
         print(e)
         flash("Movie editing failed. {}".format(e), 'error')
@@ -271,11 +313,16 @@ def api_rate_movie(id: str):
     if "username" not in session:
         flash("No user logged in.", 'error')
         return redirect("/auth/login")
-    
-    if session["csrf_token"] != request.form["csrf_token"]:
-        flash("CSRF token mismatch. You may have to login again.", 'error')
-        return redirect("/movies/add")
-    
+
+    try:
+        if session["csrf_token"] != request.form["csrf_token"]:
+            flash("CSRF token mismatch. You may have to login again.", 'error')
+            return redirect("/movies/add")
+    except Exception as e:
+        print(e)
+        flash("Unauthorized. Log in again.", 'error')
+        return redirect("/auth/login")
+
     movie = get_movie_by_id(id)
 
     if not movie["success"]:
@@ -287,12 +334,17 @@ def api_rate_movie(id: str):
     try:
         rating = request.form["rating"]
         comment = request.form["comment"]
+    except Exception as e:
+        print(e)
+        flash("Movie rating failed. Stars or comment was missing.", 'error')
+        return redirect("/movies/rate/{}".format(id))
 
+    try:
         # sanity checks
         if not rating or not comment:
             flash("Rating and comment are required.", 'error')
             return redirect("/movies/rate/{}".format(id))
-        
+
         if not isinstance(rating, str) or not isinstance(comment, str):
             flash("Rating and comment must be of type string.", 'error')
             return redirect("/movies/rate/{}".format(id))
@@ -300,22 +352,26 @@ def api_rate_movie(id: str):
         rating_as_int = int(rating)
 
         if rating_as_int < 1 or rating_as_int > 10:
-            flash("Rating must be equal to or greater than 1 and equal to or less than 10.", 'error')
+            flash(
+                "Rating must be equal to or greater than 1 and equal to or less than 10.",
+                'error')
             return redirect("/movies/rate/{}".format(id))
-        
+
         if len(comment) < 4 or len(comment) > 1024:
             flash("Comment must be between 4 and 1024 characters.", 'error')
             return redirect("/movies/rate/{}".format(id))
-        
+
         db_result = rate_movie(id, rating_as_int, comment, session["user_id"])
 
         if not db_result["success"]:
             if "has already" in db_result["error"]:
-                flash("Movie rating failed. You have already given a rating!", 'error')
+                flash(
+                    "Movie rating failed. You have already given a rating!",
+                    'error')
 
             else:
                 flash("Movie rating failed. Please try again.", 'error')
-            
+
             return redirect("/movies/rate/{}".format(id))
 
         flash("Movie rating successful!", 'success')
@@ -326,16 +382,22 @@ def api_rate_movie(id: str):
         flash("Movie rating failed. {}".format(e), 'error')
         return redirect("/movies/rate/{}".format(id))
 
+
 @app.route("/api/movies/rate/delete/<id>", methods=["POST"])
 def api_delete_rating(id: str):
     # auth
     if "user_id" not in session:
         flash("No user logged in.", 'error')
         return redirect("/auth/login")
-    
-    if session["csrf_token"] != request.form["csrf_token"]:
-        flash("CSRF token mismatch. You may have to login again.", 'error')
-        return redirect("/movies/{}".format(id))
+
+    try:
+        if session["csrf_token"] != request.form["csrf_token"]:
+            flash("CSRF token mismatch. You may have to login again.", 'error')
+            return redirect("/movies/add")
+    except Exception as e:
+        print(e)
+        flash("Unauthorized. Log in again.", 'error')
+        return redirect("/auth/login")
 
     user = get_user_by_id(session["user_id"])
     rating = get_rating_by_id(id)
@@ -344,12 +406,12 @@ def api_delete_rating(id: str):
         print(user["error"])
 
         return render_template("error.html", error=user["error"])
-    
+
     if not rating["success"]:
         print(rating["error"])
 
         return render_template("error.html", error=rating["error"])
-    
+
     # check for ownership
     # admin can delete any rating
     if not user["data"]["is_admin"]:
@@ -363,7 +425,7 @@ def api_delete_rating(id: str):
 
         if not db_result["success"]:
             flash(db_result["error"], 'error')
-            
+
             return redirect("/movies/{}".format(id))
 
         flash("Rating deletion successful!", 'success')

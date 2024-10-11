@@ -1,5 +1,5 @@
 from app import app
-from flask import redirect, render_template, request, session, flash
+from flask import redirect, render_template, session, flash
 from sql.users import get_user_by_id
 
 

@@ -1,5 +1,5 @@
 from app import app
-from flask import redirect, render_template, request, flash, session
+from flask import redirect, render_template, request, flash
 from sql.users import register, login, logout
 
 
@@ -24,20 +24,25 @@ def api_login():
     try:
         username = request.form["username"]
         password = request.form["password"]
+    except Exception as e:
+        print(e)
+        flash("Username and password are required.", 'error')
+        return redirect("/auth/register")
 
+    try:
         # sanity checks
         if not username or not password:
             flash("Username and password are required.", 'error')
             return redirect("/auth/login")
-        
+
         if not isinstance(username, str) or not isinstance(password, str):
             flash("Username and password must be of type string.", 'error')
             return redirect("/auth/login")
-        
+
         if len(username) > 64:
             flash("Username must be at most 64 characters.", 'error')
             return redirect("/auth/login")
-    
+
         if len(password) > 64:
             flash("Password must be at most 64 characters.", 'error')
             return redirect("/auth/login")
@@ -62,20 +67,25 @@ def api_register():
     try:
         username = request.form["username"]
         password = request.form["password"]
+    except Exception as e:
+        print(e)
+        flash("Username and password are required.", 'error')
+        return redirect("/auth/register")
 
+    try:
         # sanity checks
         if not username or not password:
             flash("Username and password are required.", 'error')
             return redirect("/auth/register")
-        
+
         if not isinstance(username, str) or not isinstance(password, str):
             flash("Username and password must be of type string.", 'error')
             return redirect("/auth/register")
-        
+
         if len(username) < 4 or len(username) > 64:
             flash("Username must be between 4 and 64 characters.", 'error')
             return redirect("/auth/register")
-    
+
         if len(password) < 4 or len(password) > 64:
             flash("Password must be between 4 and 64 characters.", 'error')
             return redirect("/auth/register")
@@ -88,7 +98,7 @@ def api_register():
 
             else:
                 flash("Registration failed. Please try again.", 'error')
-            
+
             return redirect("/auth/register")
 
         flash("Registration successful!", 'success')

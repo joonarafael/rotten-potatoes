@@ -1,7 +1,5 @@
 from structs import SQLOperationResult
 from db import db
-from os import urandom
-from werkzeug.security import check_password_hash, generate_password_hash
 from sqlalchemy import text
 from flask import session
 
@@ -40,7 +38,8 @@ def get_all_movies() -> SQLOperationResult:
                     movie_dict["review_count"] = len(ratings["data"])
 
                     if movie_dict["review_count"] > 0:
-                        movie_dict["review_average"] = sum([review["rating"] for review in ratings["data"]]) / len(ratings["data"])
+                        movie_dict["review_average"] = sum(
+                            [review["rating"] for review in ratings["data"]]) / len(ratings["data"])
                     else:
                         movie_dict["review_average"] = None
                 else:
@@ -71,14 +70,14 @@ def get_all_movies() -> SQLOperationResult:
             "error": str(e),
             "data": None
         }
-    
+
 
 def get_movie_by_id(id: str) -> SQLOperationResult:
     try:
         sql = text("""
-            SELECT movies.*, genres.name 
-            FROM movies 
-            JOIN genres ON movies.genre_id = genres.id 
+            SELECT movies.*, genres.name
+            FROM movies
+            JOIN genres ON movies.genre_id = genres.id
             WHERE movies.id = :id
         """)
         result = db.session.execute(sql, {"id": id})
@@ -102,9 +101,10 @@ def get_movie_by_id(id: str) -> SQLOperationResult:
             if ratings["success"]:
                 movie_dict["reviews"] = ratings["data"]
                 movie_dict["review_count"] = len(ratings["data"])
-                
+
                 if movie_dict["review_count"] > 0:
-                    movie_dict["review_average"] = sum([review["rating"] for review in ratings["data"]]) / len(ratings["data"])
+                    movie_dict["review_average"] = sum(
+                        [review["rating"] for review in ratings["data"]]) / len(ratings["data"])
                 else:
                     movie_dict["review_average"] = None
             else:
@@ -158,8 +158,7 @@ def delete_movie_by_id(id: str, as_admin: bool) -> SQLOperationResult:
                         return {
                             "success": False,
                             "error": "Movie has reviews from other people. Only an admin can delete this.",
-                            "data": None
-                        }
+                            "data": None}
 
                 # if the only review is by the user itself, delete the movie
                 elif ratings_count == 1:
@@ -172,8 +171,7 @@ def delete_movie_by_id(id: str, as_admin: bool) -> SQLOperationResult:
                         return {
                             "success": False,
                             "error": "Movie has reviews from other people. Only an admin can delete this.",
-                            "data": None
-                        }
+                            "data": None}
 
                 # no reviews, delete the movie straight away
                 sql = text(
@@ -186,7 +184,7 @@ def delete_movie_by_id(id: str, as_admin: bool) -> SQLOperationResult:
                     "error": None,
                     "data": None
                 }
-            
+
             sql = text(
                 "DELETE FROM movies WHERE id = :id")
             db.session.execute(sql, {"id": id})
@@ -215,14 +213,23 @@ def delete_movie_by_id(id: str, as_admin: bool) -> SQLOperationResult:
         }
 
 
-def add_movie(title: str, genre: str, description: str, year: int, user_id: str) -> SQLOperationResult:
+def add_movie(
+        title: str,
+        genre: str,
+        description: str,
+        year: int,
+        user_id: str) -> SQLOperationResult:
     try:
         # incoming data has been already validated in the route
         # it's safe to insert it into the database
         sql = text(
             "INSERT INTO movies (title, genre_id, description, year, created_by) VALUES (:title, :genre_id, :description, :year, :created_by)")
-        db.session.execute(
-            sql, {"title": title, "genre_id": genre, "description": description, "year": year, "created_by": user_id})
+        db.session.execute(sql,
+                           {"title": title,
+                            "genre_id": genre,
+                            "description": description,
+                            "year": year,
+                            "created_by": user_id})
         db.session.commit()
 
         return {
@@ -240,9 +247,10 @@ def add_movie(title: str, genre: str, description: str, year: int, user_id: str)
             "error": str(e),
             "data": None
         }
-    
 
-def rate_movie(id: str, rating: int, comment: str, user_id: str) -> SQLOperationResult:
+
+def rate_movie(id: str, rating: int, comment: str,
+               user_id: str) -> SQLOperationResult:
     try:
         # check if user has already reviewed the movie
         sql = text(
@@ -256,13 +264,16 @@ def rate_movie(id: str, rating: int, comment: str, user_id: str) -> SQLOperation
                 "error": "User has already rated the movie.",
                 "data": None
             }
-        
+
         # incoming data has been already validated in the route
         # it's safe to insert it into the database
         sql = text(
             "INSERT INTO reviews (movie_id, user_id, rating, comment) VALUES (:movie_id, :user_id, :rating, :comment)")
-        db.session.execute(
-            sql, {"movie_id": id, "user_id": user_id, "rating": rating, "comment": comment})
+        db.session.execute(sql,
+                           {"movie_id": id,
+                            "user_id": user_id,
+                            "rating": rating,
+                            "comment": comment})
         db.session.commit()
 
         return {
@@ -280,16 +291,25 @@ def rate_movie(id: str, rating: int, comment: str, user_id: str) -> SQLOperation
             "error": str(e),
             "data": None
         }
-    
 
-def edit_movie_by_id(id: str, title: str, genre: str, description: str, year: int) -> SQLOperationResult:
+
+def edit_movie_by_id(
+        id: str,
+        title: str,
+        genre: str,
+        description: str,
+        year: int) -> SQLOperationResult:
     try:
         # incoming data has been already validated in the route!
         # it's safe to insert it into the database
         sql = text(
             "UPDATE movies SET title = :title, genre_id = :genre_id, description = :description, year = :year WHERE id = :id")
-        db.session.execute(
-            sql, {"title": title, "genre_id": genre, "description": description, "year": year, "id": id})
+        db.session.execute(sql,
+                           {"title": title,
+                            "genre_id": genre,
+                            "description": description,
+                            "year": year,
+                            "id": id})
         db.session.commit()
 
         return {
@@ -399,7 +419,8 @@ def get_rating_by_id(id: str) -> SQLOperationResult:
             "error": str(e),
             "data": None
         }
-    
+
+
 def delete_rating_by_id(id: str, as_admin: bool) -> SQLOperationResult:
     try:
         rating = get_rating_by_id(id)

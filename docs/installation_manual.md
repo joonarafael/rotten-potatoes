@@ -57,8 +57,10 @@ Create a `.env` file in the [`./src`](../src/ "../src") directory of the project
 SQLALCHEMY_DATABASE_URI = 'postgresql://postgres:postgres@localhost:1234/rottenpotatoes'
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 
-SECRET_KEY = 'secret'
+SECRET_KEY = 'your_secret'
 ```
+
+**Define the `SECRET_KEY` as you wish**. It is used for securing the session data. Adjust the `SQLALCHEMY_DATABASE_URI` if you've changed the default database configuration and/or port number does not match.
 
 ## Python & Python Virtual Environment
 

@@ -1,7 +1,8 @@
 from app import app
-from flask import redirect, render_template, request, session, flash
-from sql.genres import get_all_genres   
+from flask import redirect, render_template, request, flash
+from sql.genres import get_all_genres
 from sql.movies import get_all_movies, get_movie_by_id
+
 
 @app.route("/search", methods=["GET"])
 def page_search():
@@ -13,6 +14,7 @@ def page_search():
         return render_template("error.html", error=genres["error"])
 
     return render_template("search.html", genres=genres["data"])
+
 
 @app.route("/search/results/", methods=["GET"])
 def page_search_no_results():
@@ -38,10 +40,12 @@ def page_search_results(results: str):
             movies.append(movie["data"])
 
         return render_template("search.results.html", movies=movies)
-    
+
     except Exception as e:
         print(e)
-        return render_template("error.html", error="An error occurred while fetching search results.")
+        return render_template(
+            "error.html",
+            error="An error occurred while fetching search results.")
 
 
 @app.route("/api/search", methods=["POST"])
@@ -50,7 +54,7 @@ def search_results():
         title = request.form["title"]
     except KeyError:
         title = None
-    
+
     try:
         genre = request.form["genre"]
     except KeyError:
@@ -66,7 +70,7 @@ def search_results():
         if not all_movies["success"]:
             print(all_movies["error"])
             return render_template("error.html", error=all_movies["error"])
-        
+
         filtered_by_title = []
 
         if title and isinstance(title, str):
@@ -83,7 +87,7 @@ def search_results():
             for movie in filtered_by_title:
                 if genre.lower() in movie["genre_id"].lower():
                     filtered_by_genre.append(movie)
-        
+
         else:
             filtered_by_genre = filtered_by_title
 
