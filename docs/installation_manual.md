@@ -24,6 +24,8 @@ docker compose version
 
 **NOTE!** Some machines & setups might use `docker-compose` instead of `docker compose` (depends on the method of installation (Docker Engine / Docker Desktop, etc.)). If you encounter an error, try using `docker-compose` instead.
 
+**OPTIONAL:** Before launching the DB, you can alter the available genres in the database by modifying the `./db/init.sql` file! The file contains the initial setup for the database, including the available genres. Genres start from line 86.
+
 **Launching the DB Container**
 
 Once you've got _Docker Compose_ installed, you can launch the PostgreSQL container by executing the following command
@@ -54,13 +56,19 @@ docker compose down
 Create a `.env` file in the [`./src`](../src/ "../src") directory of the project and define the following environment variables:
 
 ```bash
-SQLALCHEMY_DATABASE_URI = 'postgresql://postgres:postgres@localhost:1234/rottenpotatoes'
+SQLALCHEMY_DATABASE_URI = 'URL_TO_YOUR_DATABASE'
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 
-SECRET_KEY = 'your_secret'
+SECRET_KEY = '***'
 ```
 
-**Define the `SECRET_KEY` as you wish**. It is used for securing the session data. Adjust the `SQLALCHEMY_DATABASE_URI` if you've changed the default database configuration and/or port number does not match.
+**Define the `SECRET_KEY` as you wish**. It is used for securing the session data.
+
+Adjust the `SQLALCHEMY_DATABASE_URI` to connect to the database. If you are using the default database setup with Docker Compose, as described above, you can use the following URI:
+
+```bash
+postgresql://postgres:postgres@localhost:1234/rottenpotatoes
+```
 
 ## Python & Python Virtual Environment
 

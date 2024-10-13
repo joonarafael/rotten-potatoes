@@ -49,7 +49,7 @@ def page_search_results(results: str):
 
 
 @app.route("/api/search", methods=["POST"])
-def search_results():
+def api_search_results():
     try:
         title = request.form["title"]
     except KeyError:

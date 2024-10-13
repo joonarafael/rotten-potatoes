@@ -1,5 +1,6 @@
 # script to start the development environment
 
+code .
 cd db
 docker compose up -d
 cd ..

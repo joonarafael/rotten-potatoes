@@ -59,9 +59,19 @@ def page_add_movie():
 
 @app.route("/movies/rate/<id>", methods=["GET"])
 def page_rate_movie(id: str):
-    if "username" not in session:
+    if "user_id" not in session:
         flash("No user logged in.", 'error')
         return redirect("/auth/login")
+    
+    user = get_user_by_id(session["user_id"])
+
+    if not user["success"]:
+        print(user["error"])
+
+        return render_template("error.html", error=user["error"])
+    
+    # proper auth for csrf will be done in the API
+    # page is be returned if some session data is found
 
     movie = get_movie_by_id(id)
 
@@ -89,6 +99,9 @@ def page_edit_movie(id: str):
     if not user["data"]["is_admin"]:
         flash("You are not allowed to edit movies.", 'error')
         return redirect("/movies/{}".format(id))
+    
+    # proper auth for csrf will be done in the API
+    # page is be returned if some session data is found
 
     movie = get_movie_by_id(id)
 
@@ -114,7 +127,7 @@ def page_edit_movie(id: str):
 
 @app.route("/api/movies", methods=["POST"])
 def api_post_movie():
-    # auth
+    # auth with csrf
     if "username" not in session:
         flash("No user logged in.", 'error')
         return redirect("/auth/login")
@@ -128,7 +141,7 @@ def api_post_movie():
         flash("Unauthorized. Log in again.", 'error')
         return redirect("/auth/login")
 
-    # actual logic
+    # logic
     try:
         title = request.form["title"]
         genre = request.form["genre"]
@@ -176,7 +189,7 @@ def api_post_movie():
 
 @app.route("/api/movies/<id>", methods=["POST"])
 def api_delete_movie(id: str):
-    # auth
+    # auth with csrf
     if "user_id" not in session:
         flash("No user logged in.", 'error')
         return redirect("/auth/login")
@@ -190,6 +203,7 @@ def api_delete_movie(id: str):
         flash("Unauthorized. Log in again.", 'error')
         return redirect("/auth/login")
 
+    # get details and check for true user
     user = get_user_by_id(session["user_id"])
     movie = get_movie_by_id(id)
 
@@ -209,7 +223,6 @@ def api_delete_movie(id: str):
             flash("You are not allowed to delete this movie.", 'error')
             return redirect("/movies/{}".format(id))
 
-    # actual logic
     try:
         db_result = delete_movie_by_id(id, user["data"]["is_admin"])
 
@@ -229,7 +242,7 @@ def api_delete_movie(id: str):
 
 @app.route("/api/movies/edit/<id>", methods=["PUT", "POST"])
 def api_edit_movie(id: str):
-    # auth
+    # auth with csrf
     if "user_id" not in session:
         flash("No user logged in.", 'error')
         return redirect("/auth/login")
@@ -243,6 +256,7 @@ def api_edit_movie(id: str):
         flash("Unauthorized. Log in again.", 'error')
         return redirect("/auth/login")
 
+    # get details and check for true user
     user = get_user_by_id(session["user_id"])
     movie = get_movie_by_id(id)
 
@@ -261,7 +275,7 @@ def api_edit_movie(id: str):
         flash("You are not allowed to edit movie details.", 'error')
         return redirect("/movies/{}".format(id))
 
-    # actual logic
+    # logic
     try:
         title = request.form["title"]
         genre = request.form["genre"]
@@ -309,7 +323,7 @@ def api_rate_movie(id: str):
         flash("Given ID was invalid.", 'error')
         return redirect("/movies")
 
-    # auth
+    # auth with csrf
     if "username" not in session:
         flash("No user logged in.", 'error')
         return redirect("/auth/login")
@@ -323,6 +337,7 @@ def api_rate_movie(id: str):
         flash("Unauthorized. Log in again.", 'error')
         return redirect("/auth/login")
 
+    # get details
     movie = get_movie_by_id(id)
 
     if not movie["success"]:
@@ -330,7 +345,7 @@ def api_rate_movie(id: str):
 
         return render_template("error.html", error=movie["error"])
 
-    # actual logic
+    # logic
     try:
         rating = request.form["rating"]
         comment = request.form["comment"]
@@ -340,7 +355,7 @@ def api_rate_movie(id: str):
         return redirect("/movies/rate/{}".format(id))
 
     try:
-        # sanity checks
+        # quick sanity checks
         if not rating or not comment:
             flash("Rating and comment are required.", 'error')
             return redirect("/movies/rate/{}".format(id))
@@ -385,7 +400,7 @@ def api_rate_movie(id: str):
 
 @app.route("/api/movies/rate/delete/<id>", methods=["POST"])
 def api_delete_rating(id: str):
-    # auth
+    # auth with csrf
     if "user_id" not in session:
         flash("No user logged in.", 'error')
         return redirect("/auth/login")
@@ -399,6 +414,7 @@ def api_delete_rating(id: str):
         flash("Unauthorized. Log in again.", 'error')
         return redirect("/auth/login")
 
+    # get details
     user = get_user_by_id(session["user_id"])
     rating = get_rating_by_id(id)
 
@@ -412,14 +428,13 @@ def api_delete_rating(id: str):
 
         return render_template("error.html", error=rating["error"])
 
-    # check for ownership
+    # check for ownership / admin
     # admin can delete any rating
     if not user["data"]["is_admin"]:
         if session["user_id"] != rating["data"]["user_id"]:
             flash("You are not allowed to delete this rating!", 'error')
             return redirect("/movies/{}".format(id))
 
-    # actual logic
     try:
         db_result = delete_rating_by_id(id, user["data"]["is_admin"])
 
@@ -429,7 +444,7 @@ def api_delete_rating(id: str):
             return redirect("/movies/{}".format(id))
 
         flash("Rating deletion successful!", 'success')
-        return redirect("/movies".format(id))
+        return redirect("/movies")
 
     except Exception as e:
         print(e)

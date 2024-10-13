@@ -5,6 +5,7 @@ from sql.users import get_user_by_id
 
 @app.route("/profile", methods=["GET"])
 def page_profile():
+    # check for user ID in session details
     if "user_id" not in session or not isinstance(session["user_id"], str):
         flash("You must be logged in to view this page.", 'error')
         return redirect("/auth/login")
