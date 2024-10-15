@@ -14,7 +14,13 @@
 			<button class="btn btn-primary mb-3">Search for a movie</button>
 		</a>
 	</div>
-	{% for movie in movies %}
+	{% if movies|length == 0 %}
+	<p>No movies!</p>
+	{% if session.username %}
+	<span>Would you like to <a href="/movies/add"> add the first one</a>?</span>
+	{% else %}
+	<span><a href="/auth/login">Log in</a> to add the first one!</span>{% endif %}
+	{% endif %} {% for movie in movies %}
 	<div class="card mb-3">
 		<div class="card-body">
 			<h5 class="card-title">

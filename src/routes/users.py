@@ -1,26 +1,54 @@
-from app import app
+
+"""Route handlers for authentication-related routes."""
+
+# pylint: disable=import-error
+# pylint: disable=broad-exception-caught
+
+
 from flask import redirect, render_template, request, flash
+from app import app
 from sql.users import register, login, logout
 
 
 @app.route("/auth/login", methods=["GET"])
-def page_login():
+def page_login() -> render_template:
+    """GET method for the Login page.
+
+    Returns:
+        render_template: Returns the HTML page called "auth.login.html".
+    """
     return render_template("auth.login.html")
 
 
 @app.route("/auth/register", methods=["GET"])
-def page_register():
+def page_register() -> render_template:
+    """GET method for the Register page.
+
+    Returns:
+        render_template: Returns the HTML page called "auth.register.html".
+    """
     return render_template("auth.register.html")
 
 
 @app.route("/auth/logout", methods=["GET"])
-def api_logout():
+def api_logout() -> redirect:
+    """GET method to logout the user.
+
+    Returns:
+        redirect: Redirects back home.
+    """
     logout()
-    return redirect("/auth/login")
+    return redirect("/")
 
 
 @app.route("/api/auth/login", methods=["POST"])
-def api_login():
+def api_login() -> redirect:
+    """API POST method for a user to log in.
+
+    Returns:
+        redirect: Redirects to the user's profile page if successful,
+        otherwise back to the login page with a proper error message.
+    """
     try:
         username = request.form["username"]
         password = request.form["password"]
@@ -30,7 +58,7 @@ def api_login():
         return redirect("/auth/register")
 
     try:
-        # sanity checks
+        # sanity checks for user input
         if not username or not password:
             flash("Username and password are required.", 'error')
             return redirect("/auth/login")
@@ -58,12 +86,18 @@ def api_login():
 
     except Exception as e:
         print(e)
-        flash("Login failed. {}".format(e), 'error')
+        flash(f"Login failed. {e}", 'error')
         return redirect("/auth/login")
 
 
 @app.route("/api/auth/register", methods=["POST"])
-def api_register():
+def api_register() -> redirect:
+    """API POST method for a new user to register.
+
+    Returns:
+        redirect: Redirects to the login page if successful,
+        otherwise stays on the register page with an error message.
+    """
     try:
         username = request.form["username"]
         password = request.form["password"]
@@ -73,7 +107,7 @@ def api_register():
         return redirect("/auth/register")
 
     try:
-        # sanity checks
+        # sanity checks for user input
         if not username or not password:
             flash("Username and password are required.", 'error')
             return redirect("/auth/register")
@@ -106,5 +140,5 @@ def api_register():
 
     except Exception as e:
         print(e)
-        flash("Registration failed. {}".format(e), 'error')
+        flash(f"Registration failed. {e}", 'error')
         return redirect("/auth/register")

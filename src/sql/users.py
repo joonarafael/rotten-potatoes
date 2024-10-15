@@ -1,40 +1,77 @@
-from structs import SQLOperationResult
-from db import db
+"""SQL module for user-related and auth-related stuff."""
+
+# pylint: disable=import-error
+# pylint: disable=broad-exception-caught
+
+# pylint: disable=redefined-builtin
+# i want to use `id` as variable name but pylint ain't having it
+
+
 from os import urandom
+from flask import session
 from werkzeug.security import check_password_hash, generate_password_hash
 from sqlalchemy import text
-from flask import session
+from db import db
+from structs import SQLOperationResult
 
 
 def get_user_by_id(id: str) -> SQLOperationResult:
-    sql = text(
-        "SELECT id, created_at, updated_at, username, is_admin FROM users WHERE id=:id")
-    result = db.session.execute(sql, {"id": id})
-    user = result.fetchone()
+    """Function to retrieve a user by their ID.
 
-    if user is not None:
-        user_dict = {
-            "id": id,
-            "created_at": user[1].isoformat(),
-            "updated_at": user[2].isoformat(),
-            "username": user[3],
-            "is_admin": user[4]
-        }
+    Args:
+        id (str): User ID as a string.
+
+    Returns:
+        SQLOperationResult: SQL Operation Result.
+    """
+    try:
+        sql = text(
+            "SELECT id, created_at, updated_at, username, is_admin FROM users WHERE id=:id")
+        result = db.session.execute(sql, {"id": id})
+        user = result.fetchone()
+
+        if user is not None:
+            user_dict = {
+                "id": id,
+                "created_at": user[1].isoformat(),
+                "updated_at": user[2].isoformat(),
+                "username": user[3],
+                "is_admin": user[4]
+            }
+
+            return {
+                "success": True,
+                "error": None,
+                "data": user_dict
+            }
 
         return {
-            "success": True,
-            "error": None,
-            "data": user_dict
+            "success": False,
+            "error": f"No user with id '{id}'.",
+            "data": None
         }
 
-    return {
-        "success": False,
-        "error": "No user with id '{}'.".format(id),
-        "data": None
-    }
+    except Exception as e:
+        print("DB Function 'get_user_by_id()' failed.")
+        print(e)
+
+        return {
+            "success": False,
+            "error": str(e),
+            "data": None
+        }
 
 
 def register(username: str, password: str) -> SQLOperationResult:
+    """Function to register a new user.
+
+    Args:
+        username (str): Username as a string.
+        password (str): Password (still in plaintext) as a string.
+
+    Returns:
+        SQLOperationResult: SQL Operation Result.
+    """
     try:
         hashed_password = generate_password_hash(password)
 
@@ -61,7 +98,16 @@ def register(username: str, password: str) -> SQLOperationResult:
         }
 
 
-def login(username, password) -> SQLOperationResult:
+def login(username: str, password: str) -> SQLOperationResult:
+    """Function for logging in a user.
+
+    Args:
+        username (str): Username as a string.
+        password (str): Password (in plaintext) as a string.
+
+    Returns:
+        SQLOperationResult: SQL Operation Result.
+    """
     sql = text(
         "SELECT id, created_at, updated_at, password, is_admin FROM users WHERE username=:username")
     result = db.session.execute(sql, {"username": username})
@@ -78,6 +124,7 @@ def login(username, password) -> SQLOperationResult:
         }
 
         if check_password_hash(user_dict["password"], password):
+            # initialize session
             session["csrf_token"] = urandom(16).hex()
             session["is_admin"] = user_dict["is_admin"]
             session["user_id"] = user_dict["id"]
@@ -93,12 +140,14 @@ def login(username, password) -> SQLOperationResult:
 
     return {
         "success": False,
-        "error": "No user named '{}'.".format(username),
+        "error": "Username or password incorrect.",
         "data": None
     }
 
 
 def logout() -> None:
+    """Function to log out a user & clear the session.
+    """
     def remove_key_from_session(key: str):
         try:
             del session[key]

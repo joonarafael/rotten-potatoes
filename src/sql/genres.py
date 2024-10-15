@@ -1,9 +1,20 @@
-from structs import SQLOperationResult
-from db import db
+"""SQL module for genre-related stuff."""
+
+# pylint: disable=import-error
+# pylint: disable=broad-exception-caught
+
+
 from sqlalchemy import text
+from db import db
+from structs import SQLOperationResult
 
 
 def get_all_genres() -> SQLOperationResult:
+    """Function to retrieve all genres from the database.
+
+    Returns:
+        SQLOperationResult: SQL Operation Result.
+    """
     try:
         sql = text(
             "SELECT * FROM genres ORDER BY name ASC")
@@ -34,7 +45,7 @@ def get_all_genres() -> SQLOperationResult:
         }
 
     except Exception as e:
-        print("DB Function 'register()' failed.")
+        print("DB Function 'get_all_genres()' failed.")
         print(e)
 
         return {

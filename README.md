@@ -2,6 +2,10 @@
 
 Movie rating website built as a university assignment for course "Tietokannat ja web-ohjelmointi". All features are implemented as required by the initial software requirements specification (below).
 
+## Updates
+
+**Oct 15, 2024**: All features implemented. Some final fixing & style checks still under way.
+
 ## Technical Overview
 
 Application is built with _Python Flask_ framework. Database is _PostgreSQL_ (run as a _Docker_ container).
@@ -29,3 +33,7 @@ alice:redqueen
 bob:squarepants
 patrick:asteroid
 ```
+
+## Pylint Style Check
+
+Run the bash script named `./pylint.sh` to check the style of the Python code. You might need to grant execution rights first with `chmod u+x pylint.sh`.

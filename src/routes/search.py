@@ -1,11 +1,23 @@
-from app import app
+"""Route handlers for the search-related routes."""
+
+# pylint: disable=import-error
+# pylint: disable=broad-exception-caught
+
+
 from flask import redirect, render_template, request, flash
+from app import app
 from sql.genres import get_all_genres
 from sql.movies import get_all_movies, get_movie_by_id
 
 
 @app.route("/search", methods=["GET"])
-def page_search():
+def page_search() -> render_template:
+    """GET method for the Search page.
+
+    Returns:
+        render_template: HTML page called "search.html" with a search input field and
+        list of genres to filter results by.
+    """
     genres = get_all_genres()
 
     if not genres["success"]:
@@ -17,12 +29,26 @@ def page_search():
 
 
 @app.route("/search/results/", methods=["GET"])
-def page_search_no_results():
+def page_search_no_results() -> render_template:
+    """GET method for the Search No Results page.
+
+    Returns:
+        render_template: HTML page called "search.no.results.html" with a message
+        indicating no search results were found.
+    """
     return render_template("search.no.results.html")
 
 
 @app.route("/search/results/<results>", methods=["GET"])
-def page_search_results(results: str):
+def page_search_results(results: str) -> render_template:
+    """GET method for the Search Results page.
+
+    Args:
+        results (str): List of movie IDs determined to be search results. Comma-separated.
+
+    Returns:
+        render_template: HTML page called "search.results.html" with the search results.
+    """
     if not results or not isinstance(results, str):
         return render_template("error.html", error="Invalid URL!")
 
@@ -45,11 +71,17 @@ def page_search_results(results: str):
         print(e)
         return render_template(
             "error.html",
-            error="An error occurred while fetching search results.")
+            error="An unexpected error occurred while fetching search results.")
 
 
 @app.route("/api/search", methods=["POST"])
-def api_search_results():
+def api_search_results() -> redirect | render_template:
+    """POST API endpoint for searching movies.
+
+    Returns:
+        redirect | render_template: Redirects either to the "Search No Results" page,
+        "Search Results" page, or the "Search" page with an error message.
+    """
     try:
         title = request.form["title"]
     except KeyError:
@@ -96,9 +128,9 @@ def api_search_results():
         for movie in filtered_by_genre:
             movie_ids.append(movie["id"])
 
-        return redirect("/search/results/{}".format(",".join(movie_ids)))
+        return redirect(f"/search/results/{','.join(movie_ids)}")
 
     except Exception as e:
         print(e)
-        flash("Search failed. {}".format(e), 'error')
+        flash(f"Search failed due to an unexpected error. {e}", 'error')
         return redirect("/search")

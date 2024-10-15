@@ -1,6 +1,13 @@
-from sql.genres import get_all_genres
-from flask import flash
+"""Module to house the sanity-check-function to validate user input
+for adding/editing movies."""
+
+# pylint: disable=import-error
+# pylint: disable=broad-exception-caught
+
+
 from datetime import datetime
+from flask import flash
+from sql.genres import get_all_genres
 
 
 def validate_movie_details(
@@ -8,6 +15,18 @@ def validate_movie_details(
         genre: str,
         description: str,
         year: str) -> bool:
+    """Function to validate user input for adding/editing movies.
+
+    Args:
+        title (str): Movie title as a string (4-64 chars)
+        genre (str): Movie genre ID as a string (checked against the genres table)
+        description (str): Movie description as a string (4-1024 chars)
+        year (str): Movie release year as a string (converted to an int later,
+        acceptable: 1900 to current year)
+
+    Returns:
+        bool: Whether or not the input is valid.
+    """
     genres = get_all_genres()
 
     if not genres["success"]:
@@ -41,6 +60,10 @@ def validate_movie_details(
         flash("Title must be between 4 and 64 characters.", 'error')
         return False
 
+    if len(description) < 4 or len(description) > 1024:
+        flash("Description must be between 4 and 1024 characters.", 'error')
+        return False
+
     if genre not in genre_ids:
         flash("Unknown genre.", 'error')
         return False
@@ -49,8 +72,7 @@ def validate_movie_details(
 
     if year_as_int < 1900 or year_as_int > datetime.now().year:
         flash(
-            "Year must be between greater than 1900 and equal to or less than {}.".format(
-                datetime.now().year),
+            f"Year must be between greater than 1900 and equal to or less than {datetime.now().year}.",
             'error')
         return False
 

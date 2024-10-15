@@ -1,10 +1,24 @@
-from structs import SQLOperationResult
-from db import db
-from sqlalchemy import text
+"""SQL module for movie-related and review-related stuff."""
+
+# pylint: disable=import-error
+# pylint: disable=broad-exception-caught
+
+# pylint: disable=redefined-builtin
+# i want to use `id` as variable name but pylint ain't having it
+
+
 from flask import session
+from sqlalchemy import text
+from db import db
+from structs import SQLOperationResult
 
 
 def get_all_movies() -> SQLOperationResult:
+    """Function to retrieve all movies from the database.
+
+    Returns:
+        SQLOperationResult: SQL Operation Result.
+    """
     try:
         sql = text("""
             SELECT movies.*, genres.name AS genre_name
@@ -73,6 +87,14 @@ def get_all_movies() -> SQLOperationResult:
 
 
 def get_movie_by_id(id: str) -> SQLOperationResult:
+    """Function to retrieve a movie by its ID.
+
+    Args:
+        id (str): Movie ID as a string.
+
+    Returns:
+        SQLOperationResult: SQL Operation Result.
+    """
     try:
         sql = text("""
             SELECT movies.*, genres.name
@@ -136,6 +158,16 @@ def get_movie_by_id(id: str) -> SQLOperationResult:
 
 
 def delete_movie_by_id(id: str, as_admin: bool) -> SQLOperationResult:
+    """Function to delete a movie by its ID.
+
+    Args:
+        id (str): Movie ID as a string.
+        as_admin (bool): Whether to delete the movie as an admin or not.
+        Note: This is determined by server-sided business logic in the route handler!
+
+    Returns:
+        SQLOperationResult: SQL Operation Result.
+    """
     try:
         movie = get_movie_by_id(id)
 
@@ -219,6 +251,18 @@ def add_movie(
         description: str,
         year: int,
         user_id: str) -> SQLOperationResult:
+    """Function to add a new movie to the database.
+
+    Args:
+        title (str): Movie title as a string.
+        genre (str): Movie genre ID as a string.
+        description (str): Movie description as a string.
+        year (int): Movie release year as an integer.
+        user_id (str): User ID as a string.
+
+    Returns:
+        SQLOperationResult: SQL Operation Result.
+    """
     try:
         # incoming data has been already validated in the route
         # it's safe to insert it into the database
@@ -251,6 +295,17 @@ def add_movie(
 
 def rate_movie(id: str, rating: int, comment: str,
                user_id: str) -> SQLOperationResult:
+    """Function to rate a movie.
+
+    Args:
+        id (str): Movie ID as a string.
+        rating (int): Rating as an integer (1-5).
+        comment (str): Comment as a string.
+        user_id (str): User ID as a string.
+
+    Returns:
+        SQLOperationResult: SQL Operation Result.
+    """
     try:
         # check if user has already reviewed the movie
         sql = text(
@@ -299,8 +354,20 @@ def edit_movie_by_id(
         genre: str,
         description: str,
         year: int) -> SQLOperationResult:
+    """Function to edit a movie in the database.
+
+    Args:
+        title (str): Movie title as a string.
+        genre (str): Movie genre ID as a string.
+        description (str): Movie description as a string.
+        year (int): Movie release year as an integer.
+
+    Returns:
+        SQLOperationResult: SQL Operation Result.
+    """
     try:
-        # incoming data has been already validated in the route!
+        # auth has been checked in the route
+        # incoming data has been already validated in the route
         # it's safe to insert it into the database
         sql = text(
             "UPDATE movies SET title = :title, genre_id = :genre_id, description = :description, year = :year WHERE id = :id")
@@ -330,6 +397,14 @@ def edit_movie_by_id(
 
 
 def get_movie_ratings_by_id(id: str) -> SQLOperationResult:
+    """Function to get all movie ratings.
+
+    Args:
+        id (str): Movie ID as a string.
+
+    Returns:
+        SQLOperationResult: SQL Operation Result.
+    """
     try:
         sql = text("""
             SELECT reviews.*, users.username AS username
@@ -381,6 +456,14 @@ def get_movie_ratings_by_id(id: str) -> SQLOperationResult:
 
 
 def get_rating_by_id(id: str) -> SQLOperationResult:
+    """Function to get a rating by its ID.
+
+    Args:
+        id (str): Rating ID as a string.
+
+    Returns:
+        SQLOperationResult: SQL Operation Result.
+    """
     try:
         sql = text(
             "SELECT * FROM reviews WHERE id = :id")
@@ -422,6 +505,16 @@ def get_rating_by_id(id: str) -> SQLOperationResult:
 
 
 def delete_rating_by_id(id: str, as_admin: bool) -> SQLOperationResult:
+    """Function to permanently delete a rating by its ID.
+
+    Args:
+        id (str): Rating ID as a string.
+        as_admin (bool): Whether to delete the rating as an admin or not.
+        Note: This is determined by server-sided business logic in the route handler!
+
+    Returns:
+        SQLOperationResult: SQL Operation Result.
+    """
     try:
         rating = get_rating_by_id(id)
 
