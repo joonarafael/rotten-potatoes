@@ -7,6 +7,7 @@
 # i want to use `id` as variable name but pylint ain't having it
 
 
+from typing import Callable
 from flask import redirect, render_template, request, session, flash
 from app import app
 from utils.validate_movie_details import validate_movie_details
@@ -16,7 +17,7 @@ from sql.users import get_user_by_id
 
 
 @app.route("/movies", methods=["GET"])
-def page_movies() -> redirect:
+def page_movies() -> Callable:
     """GET method for the Movies page.
 
     Returns:
@@ -26,7 +27,7 @@ def page_movies() -> redirect:
 
 
 @app.route("/movies/<id>", methods=["GET"])
-def page_movie(id: str) -> render_template:
+def page_movie(id: str) -> Callable:
     """GET method for the Movie page.
 
     Args:
@@ -70,7 +71,7 @@ def page_movie(id: str) -> render_template:
 
 
 @app.route("/movies/add", methods=["GET"])
-def page_add_movie() -> redirect | render_template:
+def page_add_movie() -> Callable:
     """GET method for the Add Movie page.
 
     Returns:
@@ -92,7 +93,7 @@ def page_add_movie() -> redirect | render_template:
 
 
 @app.route("/movies/rate/<id>", methods=["GET"])
-def page_rate_movie(id: str) -> redirect | render_template:
+def page_rate_movie(id: str) -> Callable:
     """GET method for the Rate Movie page.
 
     Args:
@@ -127,7 +128,7 @@ def page_rate_movie(id: str) -> redirect | render_template:
 
 
 @app.route("/movies/edit/<id>", methods=["GET"])
-def page_edit_movie(id: str) -> redirect | render_template:
+def page_edit_movie(id: str) -> Callable:
     """GET method for the Edit Movie page.
 
     Args:
@@ -176,7 +177,7 @@ def page_edit_movie(id: str) -> redirect | render_template:
 
 
 @app.route("/api/movies", methods=["POST"])
-def api_post_movie() -> redirect:
+def api_post_movie() -> Callable:
     """API POST method for a logged-in user to add a new movie to the database.
 
     Returns:
@@ -242,7 +243,7 @@ def api_post_movie() -> redirect:
 
 
 @app.route("/api/movies/<id>", methods=["POST"])
-def api_delete_movie(id: str) -> redirect:
+def api_delete_movie(id: str) -> Callable:
     """API POST method for a user to delete their movie from the database.
     Admins can delete any movie.
 
@@ -305,7 +306,7 @@ def api_delete_movie(id: str) -> redirect:
 
 
 @app.route("/api/movies/edit/<id>", methods=["PUT", "POST"])
-def api_edit_movie(id: str) -> redirect:
+def api_edit_movie(id: str) -> Callable:
     """API PUT & POST method for an admin to edit their movie details.
 
     Args:
@@ -390,7 +391,7 @@ def api_edit_movie(id: str) -> redirect:
 
 
 @app.route("/api/movies/rate/<id>", methods=["POST"])
-def api_rate_movie(id: str) -> redirect:
+def api_rate_movie(id: str) -> Callable:
     """API POST method for a user to send their rating.
 
     Args:
@@ -478,7 +479,7 @@ def api_rate_movie(id: str) -> redirect:
 
 
 @app.route("/api/movies/rate/delete/<id>", methods=["POST"])
-def api_delete_rating(id: str) -> redirect | render_template:
+def api_delete_rating(id: str) -> Callable:
     """API POST method for a user to delete their rating from the database.
 
     Args:

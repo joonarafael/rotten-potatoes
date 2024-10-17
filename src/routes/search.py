@@ -4,6 +4,7 @@
 # pylint: disable=broad-exception-caught
 
 
+from typing import Callable
 from flask import redirect, render_template, request, flash
 from app import app
 from sql.genres import get_all_genres
@@ -11,7 +12,7 @@ from sql.movies import get_all_movies, get_movie_by_id
 
 
 @app.route("/search", methods=["GET"])
-def page_search() -> render_template:
+def page_search() -> Callable:
     """GET method for the Search page.
 
     Returns:
@@ -29,7 +30,7 @@ def page_search() -> render_template:
 
 
 @app.route("/search/results/", methods=["GET"])
-def page_search_no_results() -> render_template:
+def page_search_no_results() -> Callable:
     """GET method for the Search No Results page.
 
     Returns:
@@ -40,7 +41,7 @@ def page_search_no_results() -> render_template:
 
 
 @app.route("/search/results/<results>", methods=["GET"])
-def page_search_results(results: str) -> render_template:
+def page_search_results(results: str) -> Callable:
     """GET method for the Search Results page.
 
     Args:
@@ -75,7 +76,7 @@ def page_search_results(results: str) -> render_template:
 
 
 @app.route("/api/search", methods=["POST"])
-def api_search_results() -> redirect | render_template:
+def api_search_results() -> Callable:
     """POST API endpoint for searching movies.
 
     Returns:

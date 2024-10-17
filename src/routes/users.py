@@ -5,13 +5,14 @@
 # pylint: disable=broad-exception-caught
 
 
+from typing import Callable
 from flask import redirect, render_template, request, flash
 from app import app
 from sql.users import register, login, logout
 
 
 @app.route("/auth/login", methods=["GET"])
-def page_login() -> render_template:
+def page_login() -> Callable:
     """GET method for the Login page.
 
     Returns:
@@ -21,7 +22,7 @@ def page_login() -> render_template:
 
 
 @app.route("/auth/register", methods=["GET"])
-def page_register() -> render_template:
+def page_register() -> Callable:
     """GET method for the Register page.
 
     Returns:
@@ -31,7 +32,7 @@ def page_register() -> render_template:
 
 
 @app.route("/auth/logout", methods=["GET"])
-def api_logout() -> redirect:
+def api_logout() -> Callable:
     """GET method to logout the user.
 
     Returns:
@@ -42,7 +43,7 @@ def api_logout() -> redirect:
 
 
 @app.route("/api/auth/login", methods=["POST"])
-def api_login() -> redirect:
+def api_login() -> Callable:
     """API POST method for a user to log in.
 
     Returns:
@@ -91,7 +92,7 @@ def api_login() -> redirect:
 
 
 @app.route("/api/auth/register", methods=["POST"])
-def api_register() -> redirect:
+def api_register() -> Callable:
     """API POST method for a new user to register.
 
     Returns:

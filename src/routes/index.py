@@ -5,13 +5,14 @@
 # pylint: disable=import-error
 
 
+from typing import Callable
 from flask import render_template, session
 from app import app
 from sql.movies import get_all_movies
 
 
 @app.route("/", methods=["GET"])
-def page_index() -> render_template:
+def page_index() -> Callable:
     """GET method for the Index page.
 
     Returns:

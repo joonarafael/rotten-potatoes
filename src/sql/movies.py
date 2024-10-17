@@ -163,7 +163,7 @@ def delete_movie_by_id(id: str, as_admin: bool) -> SQLOperationResult:
     Args:
         id (str): Movie ID as a string.
         as_admin (bool): Whether to delete the movie as an admin or not.
-        Note: This is determined by server-sided business logic in the route handler!
+        Note that This is determined by server-sided business logic in the route handler!
 
     Returns:
         SQLOperationResult: SQL Operation Result.

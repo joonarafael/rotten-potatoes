@@ -4,13 +4,14 @@
 # pylint: disable=broad-exception-caught
 
 
+from typing import Callable
 from flask import redirect, render_template, session, flash
 from app import app
 from sql.users import get_user_by_id
 
 
 @app.route("/profile", methods=["GET"])
-def page_profile() -> redirect | render_template:
+def page_profile() -> Callable:
     """GET method for the Profile page.
 
     Returns:
