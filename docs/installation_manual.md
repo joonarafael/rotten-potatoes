@@ -24,7 +24,7 @@ docker compose version
 
 **NOTE!** Some machines & setups might use `docker-compose` instead of `docker compose` (depends on the method of installation (Docker Engine / Docker Desktop, etc.)). If you encounter an error, try using `docker-compose` instead.
 
-**OPTIONAL:** Before launching the DB, you can alter the available genres in the database by modifying the `./db/init.sql` file! The file contains the initial setup for the database, including the available genres. Genres start from line 86.
+**OPTIONAL:** Before launching the DB, you can alter the available genres in the database by modifying the `./init-db.sh` file! The file contains the initial setup for the database, including the available genres. Genres start from line 86. **However, be careful not to break anything**!
 
 **Launching the DB Container**
 
@@ -69,6 +69,8 @@ Adjust the `SQLALCHEMY_DATABASE_URI` to connect to the database. If you are usin
 ```bash
 postgresql://postgres:postgres@localhost:1234/rottenpotatoes
 ```
+
+These keys (in version control) are intended for local development environments & testing only. If moving to production, make sure to change the credentials and use a more secure method for storing sensitive information.
 
 ## Python & Python Virtual Environment
 

@@ -4,7 +4,7 @@ Movie rating website built as a university assignment for course "Tietokannat ja
 
 ## Updates
 
-**Oct 15, 2024**: All features implemented. Some final fixing & style checks still under way.
+**Oct 18, 2024**: All features described in this document are implemented & working as intended.
 
 ## Technical Overview
 
@@ -37,3 +37,5 @@ patrick:asteroid
 ## Pylint Style Check
 
 Run the bash script named `./pylint.sh` to check the style of the Python code. You might need to grant execution rights first with `chmod u+x pylint.sh`.
+
+Read the bash script contents with `cat pylint.sh` - never execute scripts you don't trust!
