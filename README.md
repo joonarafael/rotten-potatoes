@@ -4,7 +4,7 @@ Movie rating website built as a university assignment for course "Tietokannat ja
 
 ## Updates
 
-**Oct 18, 2024**: All features described in this document are implemented & working as intended.
+**Oct 20, 2024**: All features described in this document are implemented & working as intended.
 
 ## Technical Overview
 
@@ -34,6 +34,8 @@ patrick:asteroid
 
 ## Pylint Style Check
 
-Run the bash script named `./pylint.sh` to check the style of the Python code. You might need to grant execution rights first with `chmod u+x pylint.sh`.
+Assuming Linux environment:
+
+Run the bash script named `./pylint.sh` to check the style of the Python code **while in the virtual environment** (read about it [here](./docs/installation_manual.md#python--python-virtual-environment)). You might need to grant execution rights first with `chmod u+x pylint.sh`.
 
 Read the bash script contents with `cat pylint.sh` - never execute scripts you don't trust!

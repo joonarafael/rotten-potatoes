@@ -72,7 +72,7 @@ def validate_movie_details(
 
     if year_as_int < 1900 or year_as_int > datetime.now().year:
         flash(
-            f"Year must be between greater than 1900 and equal to or less than {datetime.now().year}.",
+            f"Year must be greater than 1900 and equal to or less than {datetime.now().year}.",
             'error')
         return False
 

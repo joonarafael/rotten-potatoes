@@ -2,7 +2,7 @@
 
 Written in English for accessibility.
 
-This installation manual will guide you through the process of setting up the development environment for the Rotten Potatoes application. The application is built with Python and Flask, and it uses PostgreSQL as the database.
+This installation manual will guide you through the process of setting up the development environment for the _Rotten Potatoes_ application. The application is built with _Python_ and _Flask_, and it uses _PostgreSQL_ as the database.
 
 Instructions are written for a Linux environment, but the process should be similar on other operating systems as well.
 
@@ -24,7 +24,7 @@ docker compose version
 
 **NOTE!** Some machines & setups might use `docker-compose` instead of `docker compose` (depends on the method of installation (Docker Engine / Docker Desktop, etc.)). If you encounter an error, try using `docker-compose` instead.
 
-**OPTIONAL:** Before launching the DB, you can alter the available genres in the database by modifying the `./init-db.sh` file! The file contains the initial setup for the database, including the available genres. Genres start from line 86. **However, be careful not to break anything**!
+**OPTIONAL:** Before launching the DB, you can alter the available genres in the database by modifying the `./init-db.sh` file! The file contains the initial setup for the database, including the superusers & available genres. Genres start from line 86. **However, be careful not to break anything**!
 
 **Launching the DB Container**
 
@@ -41,6 +41,8 @@ To stop & remove the container, execute the following command (in the [`./db`](.
 ```bash
 docker compose down
 ```
+
+**NOTE!** I've not defined any volumes for the DB, so the data will be lost when the container is removed. If you'd like to persist the data, you should configure a volume in the `docker-compose.yml` file.
 
 ## Useful Docker Commands
 
@@ -62,7 +64,7 @@ SQLALCHEMY_TRACK_MODIFICATIONS = False
 SECRET_KEY = '***'
 ```
 
-**Define the `SECRET_KEY` as you wish**. It is used for securing the session data.
+**Define the** `SECRET_KEY` **as you wish**. It is used for securing the session data. Do not change it after initial setup, as it will invalidate all existing sessions.
 
 Adjust the `SQLALCHEMY_DATABASE_URI` to connect to the database. If you are using the default database setup with Docker Compose, as described above, you can use the following URI:
 
@@ -76,7 +78,9 @@ These keys (in version control) are intended for local development environments 
 
 ### Version
 
-**This software was built using Python version 3.10.12**. Software will likely run on other versions as well, but if you begin to encounter issues, consider installing Python 3.10.12. If you've got the Python version binaries downloaded, you can initialize the virtual environment to use the correct Python version.
+**This software was built using Python version 3.10.12**. Software will likely run on other versions as well, but if you begin to encounter issues, consider installing Python 3.10.12.
+
+**NOTE!** A virtual environment can be initialized with a specific Python version as long as the version binary is available on the system.
 
 Other options include global installation, as well as the managing of multiple Python versions (and specific Python versions within specific directories) with a dedicated tool, like [pyenv](https://github.com/pyenv/pyenv "Simple Python Version Management: pyenv").
 
@@ -94,7 +98,7 @@ Create a new _Python virtual environment_ by executing the following command in 
 python3 -m venv venv
 ```
 
-To activate the virtual environment, use the following command (again in the repo root, e.g. [here](.. "Rotten Potatoes") or adjust the path accordingly):
+To activate the virtual environment, use the following command (in the repo root (again) or adjust the path accordingly):
 
 ```bash
 source ./venv/bin/activate
